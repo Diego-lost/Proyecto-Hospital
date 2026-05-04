@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="nova-api-base" content="/ProyectoNuevo/backend/api/public" />
+    <meta
+      name="description"
+      content="Manual, políticas y documentos normativos de Clínica NovaSalud: comunicados, normas y transparencia."
+    />
+    <title>Manual y políticas | Clínica NovaSalud</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./assets/css/styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#contenido">Saltar al contenido</a>
+
+    <header class="header" data-header>
+      <div class="topbar">
+        <div class="container topbar__inner">
+          <div class="topbar__left">
+            <span class="topbar__item">
+              <span class="icon" aria-hidden="true">📍</span>
+              Av. Principal 123, Lima
+            </span>
+            <a class="topbar__item" href="tel:+51011234567">
+              <span class="icon" aria-hidden="true">☎</span>
+              (01) 123-4567
+            </a>
+            <a class="topbar__item" href="mailto:contacto@novasalud.pe">
+              <span class="icon" aria-hidden="true">✉</span>
+              contacto@novasalud.pe
+            </a>
+          </div>
+          <div class="topbar__right">
+            <button class="btn btn--ghost btn--sm" type="button" data-open-appointment>Agendar cita</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="nav">
+        <div class="container nav__inner">
+          <a class="brand" href="./index.html" aria-label="Inicio">
+            <span class="brand__mark" aria-hidden="true">+</span>
+            <span class="brand__text">Clínica <strong>NovaSalud</strong></span>
+          </a>
+
+          <nav class="menu" aria-label="Navegación principal" data-menu>
+            <a class="menu__link" href="./especialidades.html">Especialidades</a>
+            <a class="menu__link" href="./equipo.html">Equipo médico</a>
+            <a class="menu__link" href="./sedes.html">Sedes</a>
+            <a class="menu__link" href="./seguros.html">Seguros</a>
+            <a class="menu__link" href="./blog.html">Blog</a>
+            <a class="menu__link" href="./manual-politicas.html" aria-current="page">Manual y políticas</a>
+            <a class="menu__link" href="./contacto.html">Contacto</a>
+          </nav>
+
+          <div class="nav__actions">
+            <button class="icon-btn" type="button" aria-label="Buscar" data-open-search>
+              <span aria-hidden="true">⌕</span>
+            </button>
+            <button class="btn btn--primary" type="button" data-open-appointment>Agendar cita</button>
+            <button
+              class="icon-btn icon-btn--menu"
+              type="button"
+              aria-label="Abrir menú"
+              aria-expanded="false"
+              aria-controls="menu-drawer"
+              data-menu-toggle
+            >
+              <span aria-hidden="true">≡</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="drawer" id="menu-drawer" data-drawer hidden>
+      <button class="drawer__backdrop" type="button" aria-label="Cerrar menú" data-menu-close></button>
+      <div class="drawer__content">
+        <div class="drawer__header">
+          <span class="drawer__title">Menú</span>
+          <button class="icon-btn" type="button" aria-label="Cerrar menú" data-menu-close>
+            <span aria-hidden="true">×</span>
+          </button>
+        </div>
+        <div class="drawer__links" role="navigation" aria-label="Navegación móvil">
+          <a class="drawer__link" href="./especialidades.html" data-drawer-link>Especialidades</a>
+          <a class="drawer__link" href="./equipo.html" data-drawer-link>Equipo médico</a>
+          <a class="drawer__link" href="./sedes.html" data-drawer-link>Sedes</a>
+          <a class="drawer__link" href="./seguros.html" data-drawer-link>Seguros</a>
+          <a class="drawer__link" href="./blog.html" data-drawer-link>Blog</a>
+          <a class="drawer__link" href="./manual-politicas.html" data-drawer-link>Manual y políticas</a>
+          <a class="drawer__link" href="./contacto.html" data-drawer-link>Contacto</a>
+          <button class="btn btn--primary btn--block" type="button" data-open-appointment>Agendar cita</button>
+        </div>
+      </div>
+    </div>
+
+    <main id="contenido">
+      <div class="container" style="padding-top: 12px">
+        <a href="./index.html" class="muted" style="font-weight: 600">← Volver al inicio</a>
+      </div>
+
+      <section class="section" style="padding-top: 8px; padding-bottom: 48px">
+        <div class="container">
+          <header class="doc-hub__intro">
+            <p class="pill">Transparencia e institucional</p>
+            <h1 class="doc-hub__title">Manual y políticas</h1>
+            <p class="doc-hub__lead muted">
+              Centralizamos comunicados, normas y documentos de referencia para pacientes y personal,
+              en un esquema parecido al de portales hospitalarios (por ejemplo
+              <a href="https://hospitalelcarmen.gob.pe/manual-y-politicas/" rel="noopener noreferrer"
+                >Hospital El Carmen — Manual y políticas</a
+              >). Aquí va contenido demo: sustituye textos y enlaces por PDFs o páginas reales.
+            </p>
+
+            <label class="field doc-hub__jump">
+              <span class="field__label">Ir a sección</span>
+              <select class="field__input" id="doc-section-jump" aria-label="Seleccionar sección del manual">
+                <option value="bienvenida">Presentación</option>
+                <option value="comunicados">Comunicados</option>
+                <option value="normas-admin">Normas administrativas</option>
+                <option value="doc-normativos">Documentos normativos</option>
+                <option value="normativas-iso">SGC / estructura ISO (proyecto)</option>
+                <option value="criterios-adm">Criterios de admisión y egreso</option>
+                <option value="calidad-seguridad">Calidad y seguridad del paciente</option>
+                <option value="mof-rof">MOF / ROF / RIS (organización)</option>
+              </select>
+            </label>
+          </header>
+
+          <div class="doc-hub">
+            <aside class="doc-hub__aside" aria-label="Índice del manual">
+              <nav class="doc-nav">
+                <a class="doc-nav__top" href="#bienvenida">Presentación</a>
+
+                <details class="doc-nav__block" open>
+                  <summary>Comunicados y avisos</summary>
+                  <ul>
+                    <li><a href="#comunicados">Comunicados a la comunidad</a></li>
+                  </ul>
+                </details>
+
+                <details class="doc-nav__block" open>
+                  <summary>Normativa</summary>
+                  <ul>
+                    <li><a href="#normas-admin">Normas administrativas</a></li>
+                    <li><a href="#doc-normativos">Documentos normativos</a></li>
+                    <li><a href="#normativas-iso">SGC / estructura ISO (repositorio)</a></li>
+                    <li class="doc-nav__sub">
+                      <a href="#criterios-adm">Criterios de admisión y egreso</a>
+                    </li>
+                    <li class="doc-nav__sub"><a href="#calidad-seguridad">Calidad y seguridad</a></li>
+                  </ul>
+                </details>
+
+                <details class="doc-nav__block">
+                  <summary>Organización</summary>
+                  <ul>
+                    <li><a href="#mof-rof">MOF, ROF, RIS y similares</a></li>
+                  </ul>
+                </details>
+              </nav>
+            </aside>
+
+            <div class="doc-hub__panels">
+              <article class="doc-panel" id="bienvenida">
+                <h2>Presentación</h2>
+                <p>
+                  Esta sección reúne lineamientos, avisos oficiales y documentos de apoyo a la atención.
+                  Los enlaces a PDF o intranet se pueden añadir cuando tengas los archivos definitivos.
+                </p>
+              </article>
+
+              <article class="doc-panel" id="comunicados">
+                <h2>Comunicados</h2>
+                <p>
+                  Tablero de avisos (horarios especiales, campañas de vacunación, corte de servicio, etc.).
+                  Plantilla: fecha, título, breve texto y enlace “Leer más” o PDF.
+                </p>
+                <ul class="doc-list">
+                  <li><span class="muted">00/00/0000</span> — Ejemplo: actualización de horario en feriados.</li>
+                  <li><span class="muted">00/00/0000</span> — Ejemplo: nuevo protocolo de ingreso a consulta externa.</li>
+                </ul>
+              </article>
+
+              <article class="doc-panel" id="normas-admin">
+                <h2>Normas administrativas</h2>
+                <p>
+                  Procedimientos internos de gestión: adquisiciones, archivo, atención al usuario,
+                  confidencialidad de datos personales (Ley de protección de datos personales), etc.
+                </p>
+              </article>
+
+              <article class="doc-panel" id="doc-normativos">
+                <h2>Documentos normativos</h2>
+                <p>
+                  Directivas, guías de práctica clínica, manuales de procesos y otros documentos que
+                  sustentan la operación diaria de la clínica.
+                </p>
+              </article>
+
+              <article class="doc-panel" id="normativas-iso">
+                <h2>SGC y normativa ISO — estructura del proyecto</h2>
+                <p>
+                  La documentación alineada a un sistema de gestión de calidad tipo <strong>ISO 9001:2015</strong>
+                  no se “publica” aquí como certificados para pacientes: vive en el <strong>repositorio del
+                  proyecto</strong>, para el equipo y auditorías internas.
+                </p>
+                <p class="muted">
+                  Raíz del repo → carpeta <code>docs/normativa-iso/</code>: cláusulas 4–10 (contexto,
+                  liderazgo, planificación, soporte, operación, evaluación, mejora), más
+                  <code>procedimientos/</code>, <code>registros/</code> e <code>instructivos/</code>.
+                  El índice y la tabla cláusula ↔ carpeta están en
+                  <code>docs/normativa-iso/README.md</code>.
+                </p>
+                <p class="muted">
+                  Código de aplicación: <code>frontend/</code>, <code>backend/api/</code>,
+                  <code>tools/</code> (ver mismo README para la relación breve con el SGC).
+                </p>
+              </article>
+
+              <article class="doc-panel" id="criterios-adm">
+                <h2>Criterios de admisión y egreso</h2>
+                <p>
+                  Criterios médicos y administrativos para ingreso a programas, hospitalización breve o
+                  derivación. Texto legal y clínico revisado por dirección médica.
+                </p>
+              </article>
+
+              <article class="doc-panel" id="calidad-seguridad">
+                <h2>Calidad y seguridad del paciente</h2>
+                <p>
+                  Política de calidad, identificación del paciente, cirugía segura, prevención de caídas,
+                  farmacovigilancia y mejora continua (planes PDCA, indicadores).
+                </p>
+              </article>
+
+              <article class="doc-panel" id="mof-rof">
+                <h2>MOF, ROF, RIS y documentos de organización</h2>
+                <p>
+                  En el sector público peruano suelen publicarse el <strong>MOF</strong> (manual de
+                  organización de funciones), <strong>ROF</strong> (reglamento de organización y
+                  funciones), <strong>RIS</strong> (reglamento interno de servicios), entre otros. En
+                  NovaSalud puedes adaptar la misma idea: organigrama, perfiles de puesto y competencias.
+                </p>
+              </article>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="container footer__inner">
+        <div class="footer__brand">
+          <a href="./index.html" class="brand brand--footer" style="text-decoration: none; color: inherit">
+            <span class="brand__mark" aria-hidden="true">+</span>
+            <span class="brand__text">Clínica <strong>NovaSalud</strong></span>
+          </a>
+          <p class="muted">Atención médica integral con calidad, calidez y seguridad del paciente.</p>
+        </div>
+        <div class="footer__cols">
+          <div class="footer__col">
+            <h3 class="footer__title">Servicios</h3>
+            <a class="footer__link" href="./especialidades.html">Especialidades</a>
+            <a class="footer__link" href="./sedes.html">Sedes</a>
+            <a class="footer__link" href="./seguros.html">Seguros</a>
+            <a class="footer__link" href="./manual-politicas.html">Manual y políticas</a>
+          </div>
+          <div class="footer__col">
+            <h3 class="footer__title">Contacto</h3>
+            <a class="footer__link" href="tel:+51011234567">(01) 123-4567</a>
+            <a class="footer__link" href="mailto:contacto@novasalud.pe">contacto@novasalud.pe</a>
+            <span class="footer__link footer__link--static">Av. Principal 123, Lima</span>
+          </div>
+          <div class="footer__col">
+            <h3 class="footer__title">Horario</h3>
+            <span class="footer__link footer__link--static">Lun–Sáb 8:00–20:00</span>
+            <span class="footer__link footer__link--static">Emergencia 24/7</span>
+          </div>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <div class="container footer__bottom-inner">
+          <span>© <span data-year></span> Clínica NovaSalud</span>
+          <span class="muted">Hecho para XAMPP (frontend estático)</span>
+        </div>
+      </div>
+    </footer>
+
+    <dialog class="modal" data-appointment-modal aria-label="Agendar cita">
+      <form class="modal__panel" method="dialog" data-appointment-form>
+        <div class="modal__head">
+          <h2 class="modal__title">Agendar cita</h2>
+          <button class="icon-btn" type="submit" value="cancel" aria-label="Cerrar">
+            <span aria-hidden="true">×</span>
+          </button>
+        </div>
+        <div class="grid grid--2 grid--gap-sm">
+          <div class="field">
+            <span class="field__label" id="label-paciente-dni">DNI paciente</span>
+            <div class="field__dni-row">
+              <input
+                class="field__input"
+                name="paciente_dni"
+                inputmode="numeric"
+                maxlength="8"
+                placeholder="8 dígitos"
+                autocomplete="off"
+                required
+                aria-labelledby="label-paciente-dni"
+              />
+              <button type="button" class="btn btn--soft" data-dni-buscar="paciente">Buscar</button>
+            </div>
+          </div>
+          <label class="field">
+            <span class="field__label">Nombre</span>
+            <input class="field__input" name="name" autocomplete="name" required />
+          </label>
+          <label class="field">
+            <span class="field__label">Teléfono</span>
+            <input class="field__input" name="phone" inputmode="tel" autocomplete="tel" required />
+          </label>
+          <label class="field">
+            <span class="field__label">Correo</span>
+            <input class="field__input" name="email" type="email" autocomplete="email" required />
+          </label>
+          <label class="field">
+            <span class="field__label">Especialidad</span>
+            <select class="field__input" name="specialty" required>
+              <option value="" selected disabled>Selecciona</option>
+              <option>Cardiología</option>
+              <option>Pediatría</option>
+              <option>Ginecología</option>
+              <option>Traumatología</option>
+              <option>Medicina interna</option>
+              <option>Dermatología</option>
+            </select>
+          </label>
+          <label class="field">
+            <span class="field__label">Fecha preferida</span>
+            <input class="field__input" name="date" type="date" required />
+          </label>
+          <label class="field field--full">
+            <span class="field__label">Motivo</span>
+            <textarea class="field__input" name="reason" rows="3" required></textarea>
+          </label>
+        </div>
+        <div class="modal__actions">
+          <button class="btn btn--primary btn--block" type="submit" value="confirm">Solicitar cita</button>
+          <p class="form__hint">Se registra como solicitud en Laravel (`POST /api/solicitudes-citas`).</p>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog class="modal" data-search-modal aria-label="Buscar">
+      <form class="modal__panel" method="dialog" data-search-form>
+        <div class="modal__head">
+          <h2 class="modal__title">Buscar</h2>
+          <button class="icon-btn" type="submit" value="cancel" aria-label="Cerrar">
+            <span aria-hidden="true">×</span>
+          </button>
+        </div>
+        <label class="field field--full">
+          <span class="field__label">¿Qué estás buscando?</span>
+          <input class="field__input" name="q" placeholder="Ej. cardiología, sedes, horarios..." />
+        </label>
+        <button class="btn btn--soft btn--block" type="submit" value="confirm">Buscar</button>
+        <p class="form__hint">Abre la página del menú que coincida (misma ventana).</p>
+      </form>
+    </dialog>
+
+    <script src="./assets/js/catalog.js" defer></script>
+    <script src="./assets/js/main.js" defer></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        var sel = document.getElementById("doc-section-jump");
+        if (!sel) return;
+        sel.addEventListener("change", function () {
+          var id = sel.value;
+          var el = document.getElementById(id);
+          if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+      });
+    </script>
+  </body>
+</html>

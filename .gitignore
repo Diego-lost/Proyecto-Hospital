@@ -1,0 +1,4 @@
+# Raíz del monorepo — el API Laravel tiene su propio .gitignore (vendor, .env, etc.)
+.DS_Store
+Thumbs.db
+*.log

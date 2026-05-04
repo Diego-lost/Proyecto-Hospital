@@ -1,0 +1,486 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- Raíz del Laravel public (sin /api). Cambia el valor si tu proyecto no está en /ProyectoNuevo/ -->
+    <meta name="nova-api-base" content="/ProyectoNuevo/backend/api/public" />
+    <meta
+      name="description"
+      content="Clínica médica moderna: especialidades, equipo médico, sedes y agendamiento de citas."
+    />
+    <title>Clínica NovaSalud | Atención médica integral</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./assets/css/styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#contenido">Saltar al contenido</a>
+
+    <header class="header" data-header>
+      <div class="topbar">
+        <div class="container topbar__inner">
+          <div class="topbar__left">
+            <span class="topbar__item">
+              <span class="icon" aria-hidden="true">📍</span>
+              Av. Principal 123, Lima
+            </span>
+            <a class="topbar__item" href="tel:+51011234567">
+              <span class="icon" aria-hidden="true">☎</span>
+              (01) 123-4567
+            </a>
+            <a class="topbar__item" href="mailto:contacto@novasalud.pe">
+              <span class="icon" aria-hidden="true">✉</span>
+              contacto@novasalud.pe
+            </a>
+          </div>
+          <div class="topbar__right">
+            <button class="btn btn--ghost btn--sm" type="button" data-open-appointment>
+              Agendar cita
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="nav">
+        <div class="container nav__inner">
+          <a class="brand" href="./index.html" aria-label="Inicio">
+            <span class="brand__mark" aria-hidden="true">+</span>
+            <span class="brand__text">Clínica <strong>NovaSalud</strong></span>
+          </a>
+
+          <nav class="menu" aria-label="Navegación principal" data-menu>
+            <a class="menu__link" href="./especialidades.html">Especialidades</a>
+            <a class="menu__link" href="./equipo.html">Equipo médico</a>
+            <a class="menu__link" href="./sedes.html">Sedes</a>
+            <a class="menu__link" href="./seguros.html">Seguros</a>
+            <a class="menu__link" href="./blog.html">Blog</a>
+            <a class="menu__link" href="./contacto.html">Contacto</a>
+          </nav>
+
+          <div class="nav__actions">
+            <button class="icon-btn" type="button" aria-label="Buscar" data-open-search>
+              <span aria-hidden="true">⌕</span>
+            </button>
+            <button class="btn btn--primary" type="button" data-open-appointment>
+              Agendar cita
+            </button>
+            <button
+              class="icon-btn icon-btn--menu"
+              type="button"
+              aria-label="Abrir menú"
+              aria-expanded="false"
+              aria-controls="menu-drawer"
+              data-menu-toggle
+            >
+              <span aria-hidden="true">≡</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="drawer" id="menu-drawer" data-drawer hidden>
+      <button class="drawer__backdrop" type="button" aria-label="Cerrar menú" data-menu-close></button>
+      <div class="drawer__content">
+        <div class="drawer__header">
+          <span class="drawer__title">Menú</span>
+          <button class="icon-btn" type="button" aria-label="Cerrar menú" data-menu-close>
+            <span aria-hidden="true">×</span>
+          </button>
+        </div>
+        <div class="drawer__links" role="navigation" aria-label="Navegación móvil">
+          <a class="drawer__link" href="./especialidades.html" data-drawer-link>Especialidades</a>
+          <a class="drawer__link" href="./equipo.html" data-drawer-link>Equipo médico</a>
+          <a class="drawer__link" href="./sedes.html" data-drawer-link>Sedes</a>
+          <a class="drawer__link" href="./seguros.html" data-drawer-link>Seguros</a>
+          <a class="drawer__link" href="./blog.html" data-drawer-link>Blog</a>
+          <a class="drawer__link" href="./contacto.html" data-drawer-link>Contacto</a>
+          <button class="btn btn--primary btn--block" type="button" data-open-appointment>
+            Agendar cita
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <main id="contenido">
+      <section class="hero">
+        <div class="container hero__inner">
+          <div class="hero__copy">
+            <p class="pill">Atención ambulatoria y hospitalaria</p>
+            <h1 class="hero__title">
+              Salud de primer nivel con un enfoque humano y tecnología clínica.
+            </h1>
+            <p class="hero__subtitle">
+              Especialidades integradas, equipo médico calificado y acompañamiento antes, durante y
+              después de tu atención.
+            </p>
+
+            <div class="hero__cta">
+              <button class="btn btn--primary" type="button" data-open-appointment>
+                Agendar cita
+              </button>
+              <a class="btn btn--soft" href="./especialidades.html">Ver especialidades</a>
+            </div>
+
+            <dl class="hero__stats" aria-label="Indicadores (datos en vivo desde el sistema)">
+              <div class="stat">
+                <dt class="stat__kpi" data-live-stat="especialidades">—</dt>
+                <dd class="stat__label">Especialidades</dd>
+              </div>
+              <div class="stat">
+                <dt class="stat__kpi" data-live-stat="medicos">—</dt>
+                <dd class="stat__label">Médicos</dd>
+              </div>
+              <div class="stat">
+                <dt class="stat__kpi" data-live-stat="servicios">—</dt>
+                <dd class="stat__label">Servicios</dd>
+              </div>
+            </dl>
+          </div>
+
+          <div class="hero__card" aria-label="Accesos rápidos">
+            <div class="quick">
+              <div class="quick__item">
+                <div class="quick__icon" aria-hidden="true">🩺</div>
+                <div class="quick__text">
+                  <div class="quick__title">Consulta médica</div>
+                  <div class="quick__desc">Presencial y teleconsulta.</div>
+                </div>
+              </div>
+              <div class="quick__item">
+                <div class="quick__icon" aria-hidden="true">🧪</div>
+                <div class="quick__text">
+                  <div class="quick__title">Laboratorio</div>
+                  <div class="quick__desc">Resultados rápidos y confiables.</div>
+                </div>
+              </div>
+              <div class="quick__item">
+                <div class="quick__icon" aria-hidden="true">🩻</div>
+                <div class="quick__text">
+                  <div class="quick__title">Imágenes</div>
+                  <div class="quick__desc">Rayos X, eco y tomografía.</div>
+                </div>
+              </div>
+              <div class="quick__item">
+                <div class="quick__icon" aria-hidden="true">🏥</div>
+                <div class="quick__text">
+                  <div class="quick__title">Emergencia</div>
+                  <div class="quick__desc">Atención 24 horas.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="hero__note">
+              <span class="badge">Nuevo</span>
+              <span>Agenda online y recibe confirmación por correo.</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="especialidades">
+        <div class="container">
+          <div class="section__head">
+            <h2 class="section__title">Especialidades</h2>
+            <p class="section__subtitle">
+              Listado sincronizado con el panel de administración: al crear, editar o eliminar
+              especialidades en el backend, verás los cambios aquí al recargar la página.
+            </p>
+          </div>
+
+          <div data-catalog-mount="especialidades" id="mount-especialidades-index"></div>
+        </div>
+      </section>
+
+      <section class="section section--alt" id="servicios">
+        <div class="container">
+          <div class="section__head">
+            <h2 class="section__title">Servicios y tarifas</h2>
+            <p class="section__subtitle">
+              Servicios publicados con precio y médico asignado. Gestionados desde el mismo sistema
+              administrativo.
+            </p>
+          </div>
+          <div data-catalog-mount="servicios" id="mount-servicios-index"></div>
+        </div>
+      </section>
+
+      <section class="section" id="equipo">
+        <div class="container">
+          <div class="section__head">
+            <h2 class="section__title">Equipo médico</h2>
+            <p class="section__subtitle">
+              Profesionales registrados en la base de datos, con su especialidad vinculada.
+            </p>
+          </div>
+
+          <div data-catalog-mount="medicos" id="mount-medicos-index"></div>
+        </div>
+      </section>
+
+      <section class="section" id="sedes">
+        <div class="container">
+          <div class="section__head">
+            <h2 class="section__title">Sedes y horarios</h2>
+            <p class="section__subtitle">
+              Atención de lunes a sábado. Emergencia 24/7.
+            </p>
+          </div>
+
+          <div class="grid grid--2">
+            <article class="location">
+              <h3 class="location__title">Sede Central</h3>
+              <p class="location__text">Av. Principal 123, Lima</p>
+              <ul class="list">
+                <li><strong>Consultas:</strong> Lun–Sáb 8:00–20:00</li>
+                <li><strong>Laboratorio:</strong> Lun–Sáb 7:00–18:00</li>
+                <li><strong>Emergencia:</strong> 24 horas</li>
+              </ul>
+            </article>
+            <article class="location">
+              <h3 class="location__title">Sede Norte</h3>
+              <p class="location__text">Jr. Salud 456, Lima Norte</p>
+              <ul class="list">
+                <li><strong>Consultas:</strong> Lun–Sáb 9:00–19:00</li>
+                <li><strong>Imágenes:</strong> Lun–Sáb 9:00–17:00</li>
+                <li><strong>Emergencia:</strong> 24 horas</li>
+              </ul>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section section--alt" id="seguros">
+        <div class="container">
+          <div class="section__head">
+            <h2 class="section__title">Convenios y seguros</h2>
+            <p class="section__subtitle">
+              Trabajamos con aseguradoras y convenios corporativos (editable según tus acuerdos).
+            </p>
+          </div>
+
+          <div class="logos" aria-label="Aseguradoras (demo)">
+            <div class="logo">Seguro A</div>
+            <div class="logo">Seguro B</div>
+            <div class="logo">Seguro C</div>
+            <div class="logo">Seguro D</div>
+            <div class="logo">Seguro E</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="blog">
+        <div class="container">
+          <div class="section__head">
+            <h2 class="section__title">Consejos de salud</h2>
+            <p class="section__subtitle">
+              Educación para pacientes: prevención, hábitos y señales de alerta.
+            </p>
+          </div>
+
+          <div class="grid grid--3">
+            <article class="post">
+              <p class="post__tag">Cardio</p>
+              <h3 class="post__title">5 señales para chequear tu corazón</h3>
+              <p class="post__excerpt">
+                Identifica síntomas y cuándo acudir a consulta médica.
+              </p>
+              <a class="post__link" href="./contacto.html">Leer más</a>
+            </article>
+            <article class="post">
+              <p class="post__tag">Pediatría</p>
+              <h3 class="post__title">Vacunas: calendario y recomendaciones</h3>
+              <p class="post__excerpt">
+                Guía rápida para mantener el esquema al día.
+              </p>
+              <a class="post__link" href="./contacto.html">Leer más</a>
+            </article>
+            <article class="post">
+              <p class="post__tag">Bienestar</p>
+              <h3 class="post__title">Sueño y salud: hábitos que sí funcionan</h3>
+              <p class="post__excerpt">
+                Rutinas simples para dormir mejor y rendir más.
+              </p>
+              <a class="post__link" href="./contacto.html">Leer más</a>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section section--cta" id="contacto">
+        <div class="container">
+          <div class="cta">
+            <div class="cta__copy">
+              <h2 class="cta__title">¿Listo para agendar?</h2>
+              <p class="cta__text">
+                Envíanos tus datos y te confirmamos disponibilidad. También puedes llamar o escribir
+                por correo.
+              </p>
+              <div class="cta__actions">
+                <button class="btn btn--primary" type="button" data-open-appointment>
+                  Agendar cita
+                </button>
+                <a class="btn btn--ghost" href="tel:+51011234567">Llamar</a>
+              </div>
+            </div>
+
+            <form class="form" data-contact-form>
+              <label class="field">
+                <span class="field__label">Nombre</span>
+                <input class="field__input" name="name" autocomplete="name" required />
+              </label>
+              <label class="field">
+                <span class="field__label">Teléfono</span>
+                <input class="field__input" name="phone" inputmode="tel" autocomplete="tel" required />
+              </label>
+              <label class="field">
+                <span class="field__label">Especialidad</span>
+                <select class="field__input" name="specialty" required>
+                  <option value="" selected disabled>Selecciona</option>
+                  <option>Cardiología</option>
+                  <option>Pediatría</option>
+                  <option>Ginecología</option>
+                  <option>Traumatología</option>
+                  <option>Medicina interna</option>
+                  <option>Dermatología</option>
+                </select>
+              </label>
+              <label class="field field--full">
+                <span class="field__label">Mensaje</span>
+                <textarea class="field__input" name="message" rows="3" required></textarea>
+              </label>
+              <button class="btn btn--primary btn--block" type="submit">Enviar</button>
+              <p class="form__hint">
+                Se envía al backend como solicitud de contacto (misma API que “Agendar cita”).
+              </p>
+            </form>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="container footer__inner">
+        <div class="footer__brand">
+          <div class="brand brand--footer">
+            <span class="brand__mark" aria-hidden="true">+</span>
+            <span class="brand__text">Clínica <strong>NovaSalud</strong></span>
+          </div>
+          <p class="muted">
+            Atención médica integral con calidad, calidez y seguridad del paciente.
+          </p>
+        </div>
+        <div class="footer__cols">
+          <div class="footer__col">
+            <h3 class="footer__title">Servicios</h3>
+            <a class="footer__link" href="./especialidades.html">Especialidades</a>
+            <a class="footer__link" href="./sedes.html">Sedes</a>
+            <a class="footer__link" href="./seguros.html">Seguros</a>
+          </div>
+          <div class="footer__col">
+            <h3 class="footer__title">Contacto</h3>
+            <a class="footer__link" href="tel:+51011234567">(01) 123-4567</a>
+            <a class="footer__link" href="mailto:contacto@novasalud.pe">contacto@novasalud.pe</a>
+            <span class="footer__link footer__link--static">Av. Principal 123, Lima</span>
+          </div>
+          <div class="footer__col">
+            <h3 class="footer__title">Horario</h3>
+            <span class="footer__link footer__link--static">Lun–Sáb 8:00–20:00</span>
+            <span class="footer__link footer__link--static">Emergencia 24/7</span>
+          </div>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <div class="container footer__bottom-inner">
+          <span>© <span data-year></span> Clínica NovaSalud</span>
+          <span class="muted">Hecho para XAMPP (frontend estático)</span>
+        </div>
+      </div>
+    </footer>
+
+    <dialog class="modal" data-appointment-modal aria-label="Agendar cita">
+      <form class="modal__panel" method="dialog" data-appointment-form>
+        <div class="modal__head">
+          <h2 class="modal__title">Agendar cita</h2>
+          <button class="icon-btn" type="submit" value="cancel" aria-label="Cerrar">
+            <span aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <div class="grid grid--2 grid--gap-sm">
+          <label class="field">
+            <span class="field__label">Nombre</span>
+            <input class="field__input" name="name" autocomplete="name" required />
+          </label>
+          <label class="field">
+            <span class="field__label">DNI (opcional)</span>
+            <input class="field__input" name="dni" inputmode="numeric" />
+          </label>
+          <label class="field">
+            <span class="field__label">Teléfono</span>
+            <input class="field__input" name="phone" inputmode="tel" autocomplete="tel" required />
+          </label>
+          <label class="field">
+            <span class="field__label">Correo</span>
+            <input class="field__input" name="email" type="email" autocomplete="email" required />
+          </label>
+          <label class="field">
+            <span class="field__label">Especialidad</span>
+            <select class="field__input" name="specialty" required>
+              <option value="" selected disabled>Selecciona</option>
+              <option>Cardiología</option>
+              <option>Pediatría</option>
+              <option>Ginecología</option>
+              <option>Traumatología</option>
+              <option>Medicina interna</option>
+              <option>Dermatología</option>
+            </select>
+          </label>
+          <label class="field">
+            <span class="field__label">Fecha preferida</span>
+            <input class="field__input" name="date" type="date" required />
+          </label>
+          <label class="field field--full">
+            <span class="field__label">Motivo</span>
+            <textarea class="field__input" name="reason" rows="3" required></textarea>
+          </label>
+        </div>
+
+        <div class="modal__actions">
+          <button class="btn btn--primary btn--block" type="submit" value="confirm">
+            Solicitar cita
+          </button>
+          <p class="form__hint">
+            Se registra como solicitud en Laravel (`POST /api/solicitudes-citas`). Las especialidades
+            del desplegable se cargan desde el catálogo del administrador.
+          </p>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog class="modal" data-search-modal aria-label="Buscar">
+      <form class="modal__panel" method="dialog" data-search-form>
+        <div class="modal__head">
+          <h2 class="modal__title">Buscar</h2>
+          <button class="icon-btn" type="submit" value="cancel" aria-label="Cerrar">
+            <span aria-hidden="true">×</span>
+          </button>
+        </div>
+        <label class="field field--full">
+          <span class="field__label">¿Qué estás buscando?</span>
+          <input class="field__input" name="q" placeholder="Ej. cardiología, sedes, horarios..." />
+        </label>
+        <button class="btn btn--soft btn--block" type="submit" value="confirm">Buscar</button>
+        <p class="form__hint">Abre la página del menú que coincida (misma ventana).</p>
+      </form>
+    </dialog>
+
+    <script src="./assets/js/catalog.js" defer></script>
+    <script src="./assets/js/main.js" defer></script>
+  </body>
+</html>
