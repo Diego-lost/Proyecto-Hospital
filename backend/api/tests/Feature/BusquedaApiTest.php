@@ -55,6 +55,8 @@ class BusquedaApiTest extends TestCase
 
     public function test_busqueda_paciente_sin_historial(): void
     {
+        Config::set('services.consultasperu.token', '');
+
         $this->getJson(route('api.busqueda.paciente', ['dni' => '99999999']))
             ->assertOk()
             ->assertJsonPath('encontrado', false)

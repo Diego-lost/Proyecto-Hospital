@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\AdminEspecialidadController;
 use App\Http\Controllers\Admin\AdminMedicoController;
 use App\Http\Controllers\Admin\AdminServicioController;
 use App\Http\Controllers\Admin\AdminSolicitudCitaController;
+use App\Http\Controllers\Auth\LoginController;
 
 Route::get('/', function () {
     $frontendRaw = FrontendPublicUrl::resolve();
@@ -28,7 +29,18 @@ Route::get('/', function () {
     return view('home', compact('especialidades'));
 })->name('home');
 
-Route::prefix('admin')->name('admin.')->group(function () {
+Route::get('/sitio-web', function () {
+    return redirect()->away(FrontendPublicUrl::resolve());
+})->name('web.public');
+
+Route::middleware('guest')->group(function () {
+    Route::get('/login', [LoginController::class, 'create'])->name('login');
+    Route::post('/login', [LoginController::class, 'store']);
+});
+
+Route::post('/logout', [LoginController::class, 'destroy'])->middleware('auth')->name('logout');
+
+Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::resource('especialidades', AdminEspecialidadController::class)

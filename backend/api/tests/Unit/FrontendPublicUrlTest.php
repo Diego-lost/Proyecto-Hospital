@@ -14,7 +14,7 @@ class FrontendPublicUrlTest extends TestCase
         URL::forceRootUrl('http://localhost/ProyectoNuevo/backend/api/public');
 
         $this->assertSame(
-            'http://localhost/ProyectoNuevo/frontend/index.html',
+            'http://localhost/ProyectoNuevo/frontend/',
             FrontendPublicUrl::resolve()
         );
     }
@@ -24,5 +24,14 @@ class FrontendPublicUrlTest extends TestCase
         config(['app.frontend_url' => 'https://clinica.example/inicio']);
 
         $this->assertSame('https://clinica.example/inicio', FrontendPublicUrl::resolve());
+    }
+
+    public function test_usa_fallback_cuando_la_raiz_es_artisan_serve(): void
+    {
+        config(['app.frontend_url' => null]);
+        config(['app.frontend_url_fallback' => 'http://ejemplo.test/clinica/index.html']);
+        URL::forceRootUrl('http://127.0.0.1:8000');
+
+        $this->assertSame('http://ejemplo.test/clinica/index.html', FrontendPublicUrl::resolve());
     }
 }

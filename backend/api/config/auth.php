@@ -1,7 +1,5 @@
 <?php
 
-use App\Models\User;
-
 return [
 
     /*
@@ -62,14 +60,17 @@ return [
     */
 
     'providers' => [
+        /*
+         * Panel /admin: usuario definido en config/dev_login.php (prueba sin fila en users).
+         * Para volver a usuarios en BD: driver "eloquent" + model User::class
+         */
         'users' => [
-            'driver' => 'eloquent',
-            'model' => env('AUTH_MODEL', User::class),
+            'driver' => 'config_dev',
         ],
 
         // 'users' => [
-        //     'driver' => 'database',
-        //     'table' => 'users',
+        //     'driver' => 'eloquent',
+        //     'model' => env('AUTH_MODEL', User::class),
         // ],
     ],
 

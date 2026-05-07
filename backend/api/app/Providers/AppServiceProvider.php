@@ -2,8 +2,8 @@
 
 namespace App\Providers;
 
-use App\Support\FrontendPublicUrl;
-use Illuminate\Support\Facades\View;
+use App\Auth\ConfigDevUserProvider;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -21,8 +21,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        View::composer('admin.*', function ($view) {
-            $view->with('frontendPublicUrl', FrontendPublicUrl::resolve());
-        });
+        Auth::provider('config_dev', fn ($app, array $config): ConfigDevUserProvider => new ConfigDevUserProvider);
     }
 }

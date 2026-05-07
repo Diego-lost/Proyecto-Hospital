@@ -60,11 +60,22 @@ return [
     |--------------------------------------------------------------------------
     |
     | Si no defines FRONTEND_URL en .env, en instalaciones tipo XAMPP se intentará deducir
-    | reemplazando /backend/api/public por /frontend/index.html en APP_URL.
+    | reemplazando /backend/api/public por /frontend/ en APP_URL.
     |
     */
 
     'frontend_url' => env('FRONTEND_URL'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Sitio público si no se puede deducir la ruta (p. ej. php artisan serve :8000)
+    |--------------------------------------------------------------------------
+    */
+
+    'frontend_url_fallback' => env(
+        'FRONTEND_URL_FALLBACK',
+        'http://localhost/ProyectoNuevo/frontend/'
+    ),
 
     /*
     |--------------------------------------------------------------------------

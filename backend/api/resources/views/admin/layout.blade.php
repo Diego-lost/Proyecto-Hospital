@@ -275,7 +275,7 @@
         <div class="admin-sidebar__foot">
           Los cambios en el catálogo se reflejan en la web pública al <strong>recargar</strong> la página del sitio NovaSalud (frontend estático + API).
           <div style="margin-top: 10px; display: flex; flex-direction: column; gap: 6px;">
-            <a href="{{ $frontendPublicUrl }}" target="_blank" rel="noopener">Sitio web NovaSalud</a>
+            <a href="{{ route('web.public') }}">Sitio web NovaSalud</a>
             <a href="{{ url('/') }}" target="_blank" rel="noopener" style="opacity: 0.85">Inicio Laravel (API)</a>
           </div>
         </div>
@@ -283,7 +283,14 @@
       <div class="admin-main">
         <header class="admin-topbar">
           <div style="font-weight: 800; font-size: 16px; letter-spacing: -0.3px;">@yield('title', 'Administración')</div>
-          <a class="btn btn-soft" href="{{ $frontendPublicUrl }}" target="_blank" rel="noopener">Ver sitio web</a>
+          <div style="display:flex;align-items:center;flex-wrap:wrap;gap:10px;">
+            <span class="muted" style="font-size:14px;">{{ auth()->user()->email }}</span>
+            <form method="post" action="{{ route('logout') }}" style="margin:0;">
+              @csrf
+              <button type="submit" class="btn btn-soft" style="cursor:pointer;">Cerrar sesión</button>
+            </form>
+            <a class="btn btn-soft" href="{{ route('web.public') }}">Ver sitio web</a>
+          </div>
         </header>
         <div class="admin-content">
           @yield('content')
