@@ -1,0 +1,795 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Fraunces:ital,opsz,wght@0,9..144,600;0,9..144,700;1,9..144,600&display=swap');
+@import 'tailwindcss';
+
+@theme {
+  --color-background: #ffffff;
+  --color-foreground: #0d1b2a;
+  --color-card: #f4f8fc;
+  --color-card-foreground: #0d1b2a;
+  --color-primary: #0a3553;
+  --color-primary-foreground: #ffffff;
+  --color-secondary: #eef4fa;
+  --color-secondary-foreground: #0a3553;
+  --color-muted: #edf1f6;
+  --color-muted-foreground: #6b7b8e;
+  --color-accent: #2fa89e;
+  --color-accent-foreground: #ffffff;
+  --color-border: rgba(10, 53, 83, 0.1);
+  --color-destructive: #d4183d;
+  --font-sans: 'DM Sans', system-ui, sans-serif;
+  --font-display: 'Fraunces', Georgia, serif;
+  --radius-lg: 0.75rem;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply min-h-screen bg-background text-foreground antialiased;
+    font-family: var(--font-sans);
+  }
+
+  #root {
+    @apply min-h-screen;
+  }
+}
+
+@layer components {
+  .font-display {
+    font-family: var(--font-display);
+  }
+
+  .skip-link {
+    @apply absolute -left-[9999px] top-4 z-[9999] rounded-lg border border-border bg-white px-3 py-2 text-sm;
+  }
+
+  .skip-link:focus {
+    @apply left-4;
+  }
+
+  /* Portal mega menú (compatibilidad con PortalNav.tsx) */
+  .nav-mega-row {
+    @apply hidden items-center gap-0.5 xl:flex;
+  }
+
+  .menu__link {
+    @apply whitespace-nowrap rounded-md px-2.5 py-2 text-[13px] text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground;
+  }
+
+  .menu__link[aria-current='page'] {
+    @apply font-semibold text-primary;
+  }
+
+  .menu__link--external::after {
+    content: ' ↗';
+    @apply text-[10px] opacity-60;
+  }
+
+  .nav-mega {
+    @apply relative;
+  }
+
+  .nav-mega__trigger {
+    @apply flex cursor-pointer items-center gap-1 whitespace-nowrap rounded-md border-0 bg-transparent px-2.5 py-2 text-[13px] text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground;
+  }
+
+  .nav-mega--open .nav-mega__trigger,
+  .nav-mega__trigger:hover {
+    @apply bg-secondary text-foreground;
+  }
+
+  .nav-mega__chev {
+    @apply text-[10px] opacity-70;
+  }
+
+  .nav-mega__panel {
+    @apply pointer-events-none absolute left-0 top-full z-50 mt-1 w-[min(22rem,calc(100vw-2rem))] rounded-xl border border-border bg-white p-3 opacity-0 shadow-lg transition-opacity;
+  }
+
+  .nav-mega:hover .nav-mega__panel,
+  .nav-mega--open .nav-mega__panel {
+    @apply pointer-events-auto opacity-100;
+  }
+
+  .nav-mega__intro {
+    @apply mb-2 text-xs leading-relaxed text-muted-foreground;
+  }
+
+  .nav-mega__hub {
+    @apply mb-2 block rounded-lg px-2 py-1.5 text-xs font-semibold text-accent hover:bg-secondary;
+  }
+
+  .nav-mega__link {
+    @apply block rounded-lg px-2 py-2 transition-colors hover:bg-secondary;
+  }
+
+  .nav-mega__link-title {
+    @apply block text-sm font-medium text-primary;
+  }
+
+  .nav-mega__link-desc {
+    @apply mt-0.5 block text-xs leading-snug text-muted-foreground;
+  }
+
+  .drawer-portal__group {
+    @apply border-b border-border py-2;
+  }
+
+  .drawer-portal__summary {
+    @apply cursor-pointer list-none py-2 text-sm font-semibold text-primary;
+  }
+
+  .drawer-portal__summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .drawer-portal__subs {
+    @apply flex flex-col gap-1 pb-2 pl-2;
+  }
+
+  .drawer-portal__hint,
+  .drawer-portal__group-hint {
+    @apply m-0 text-xs text-muted-foreground;
+  }
+
+  .drawer-portal__item {
+    @apply py-1;
+  }
+
+  .drawer__link {
+    @apply block py-2 text-sm text-muted-foreground hover:text-foreground;
+  }
+
+  .drawer__link--strong {
+    @apply font-semibold text-primary;
+  }
+
+  /* Formularios y páginas internas (legacy class names) */
+  .page-shell {
+    @apply mx-auto max-w-3xl px-6 py-12;
+  }
+
+  .form-card {
+    @apply rounded-2xl border border-border bg-white p-6 shadow-sm md:p-8;
+  }
+
+  .field label,
+  .field__label {
+    @apply mb-1.5 block text-sm font-medium text-primary;
+  }
+
+  .field input,
+  .field select,
+  .field textarea,
+  .field__input {
+    @apply w-full rounded-lg border border-border bg-secondary/50 px-4 py-2.5 text-sm outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent/20;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold transition-all;
+  }
+
+  .btn--primary {
+    @apply bg-accent text-white shadow-sm hover:opacity-90;
+  }
+
+  .btn--ghost {
+    @apply border border-border text-primary hover:bg-secondary;
+  }
+
+  .btn--block {
+    @apply w-full;
+  }
+
+  .btn--sm {
+    @apply px-3 py-1.5 text-xs;
+  }
+
+  .muted {
+    @apply text-muted-foreground;
+  }
+
+  .pill {
+    @apply inline-block rounded-full bg-secondary px-3 py-1 text-xs font-semibold uppercase tracking-widest text-accent;
+  }
+
+  .alert {
+    @apply rounded-xl border px-4 py-3 text-sm;
+  }
+
+  .alert--ok {
+    @apply border-emerald-200 bg-emerald-50 text-emerald-900;
+  }
+
+  .alert--err {
+    @apply border-red-200 bg-red-50 text-red-900;
+  }
+
+  .alert--info {
+    @apply border-sky-200 bg-sky-50 text-sky-900;
+  }
+
+  /* Agendar cita — diseño Figma (wizard 4 pasos) */
+  .cita-page {
+    background: #f4f7f9;
+  }
+
+  .cita-hero__wave {
+    line-height: 0;
+    margin-bottom: -1px;
+  }
+
+  .cita-stepper {
+    @apply mx-auto mb-8 max-w-2xl px-2;
+  }
+
+  .cita-stepper__list {
+    @apply m-0 flex list-none items-start justify-between p-0;
+  }
+
+  .cita-stepper__item {
+    @apply flex min-w-0 flex-1 items-center;
+  }
+
+  .cita-stepper__node {
+    @apply flex min-w-0 flex-1 flex-col items-center gap-2;
+  }
+
+  .cita-stepper__circle {
+    @apply flex h-11 w-11 items-center justify-center rounded-full border-2 border-[#cbd5e1] bg-white text-[#94a3b8] transition-all;
+  }
+
+  .cita-stepper__circle--active {
+    @apply border-accent bg-accent text-white shadow-md shadow-accent/25;
+  }
+
+  .cita-stepper__circle--done {
+    @apply border-accent bg-accent text-white;
+  }
+
+  .cita-stepper__label {
+    @apply text-center text-xs font-semibold text-muted-foreground;
+  }
+
+  .cita-stepper__label--on {
+    @apply text-primary;
+  }
+
+  .cita-stepper__line {
+    @apply mx-1 mb-7 h-0.5 min-w-[12px] flex-1 rounded-full bg-[#e2e8f0];
+  }
+
+  .cita-stepper__line--done {
+    @apply bg-accent;
+  }
+
+  .cita-form-card {
+    @apply rounded-2xl border border-border bg-white p-6 shadow-[0_4px_24px_rgba(10,53,83,0.08)] md:p-8;
+  }
+
+  .cita-form-card__head {
+    @apply mb-6 flex items-center gap-3 border-b border-border pb-5;
+  }
+
+  .cita-form-card__head-icon {
+    @apply flex h-11 w-11 items-center justify-center rounded-xl bg-[#e6f7f5] text-accent;
+  }
+
+  .cita-form-card__title {
+    @apply m-0 font-display text-xl font-bold text-primary md:text-2xl;
+  }
+
+  .cita-info-banner {
+    @apply mb-6 flex gap-3 rounded-xl border border-[#b8e8e3] bg-[#e8f7f5] px-4 py-3.5 text-sm leading-relaxed text-[#0f4c47];
+  }
+
+  .cita-field-row {
+    @apply flex flex-col gap-2 sm:flex-row sm:items-stretch;
+  }
+
+  .cita-field-row .field__input {
+    @apply flex-1;
+  }
+
+  .cita-btn-consultar {
+    @apply inline-flex shrink-0 items-center justify-center rounded-xl bg-accent px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:opacity-90 disabled:opacity-60;
+  }
+
+  .cita-wizard-nav {
+    @apply mt-8 flex flex-col gap-3 border-t border-border pt-6;
+  }
+
+  .cita-wizard-nav__row {
+    @apply flex flex-wrap items-center gap-3;
+  }
+
+  .cita-btn-next {
+    @apply inline-flex w-full items-center justify-center gap-2 rounded-xl px-6 py-3.5 text-sm font-semibold transition-all;
+  }
+
+  .cita-btn-next--disabled {
+    @apply cursor-not-allowed bg-[#e2e8f0] text-[#94a3b8];
+  }
+
+  .cita-btn-next--enabled {
+    @apply bg-accent text-white shadow-md shadow-accent/20 hover:opacity-95;
+  }
+
+  .cita-especialidad-grid {
+    @apply grid gap-3 sm:grid-cols-2;
+  }
+
+  .cita-especialidad-card {
+    @apply rounded-xl border-2 p-4 text-left transition-all;
+  }
+
+  .cita-especialidad-card--selected {
+    @apply border-accent bg-[#e8f7f5] shadow-sm;
+  }
+
+  .cita-especialidad-card--idle {
+    @apply border-border bg-[#f8fafc] hover:border-accent/40;
+  }
+
+  .cita-form-card--paciente .cita-form-card__head {
+    @apply border-b-2 border-[#c5d9eb] pb-4;
+  }
+
+  .cita-form-card--paciente .cita-form-card__title {
+    @apply font-display text-2xl font-bold text-[#1e6bb8] md:text-[1.65rem];
+  }
+
+  .paciente-form {
+    @apply flex flex-col gap-5;
+  }
+
+  .paciente-form__grid {
+    @apply grid gap-4;
+  }
+
+  .paciente-form__grid--row1 {
+    @apply grid-cols-1 sm:grid-cols-2 xl:grid-cols-4;
+  }
+
+  .paciente-form__grid--row2 {
+    @apply grid-cols-1 sm:grid-cols-2 lg:grid-cols-4;
+  }
+
+  .paciente-form__grid--row2 .paciente-field--wide {
+    @apply lg:col-span-2;
+  }
+
+  .paciente-form__grid--row3 {
+    @apply grid-cols-1 sm:grid-cols-2 lg:grid-cols-4;
+  }
+
+  .paciente-form__grid--row3 .paciente-field--wide {
+    @apply lg:col-span-2;
+  }
+
+  .paciente-field {
+    @apply block min-w-0;
+  }
+
+  .paciente-field__label {
+    @apply mb-1.5 block text-sm font-semibold text-[#4a7ba7];
+  }
+
+  .paciente-field__req {
+    @apply text-[#1e6bb8];
+  }
+
+  .paciente-field__hint {
+    @apply mt-1 block text-xs text-muted-foreground;
+  }
+
+  .paciente-field__control {
+    @apply w-full rounded-md border-2 border-border bg-white px-3 py-2.5 text-sm text-primary shadow-sm outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent/20;
+  }
+
+  .paciente-field__control--invalid {
+    @apply border-[#e57373] bg-[#fdeaea] text-[#1a1a1a] placeholder:text-[#b07070] focus:border-[#e57373] focus:ring-[#e57373]/20;
+  }
+
+  .paciente-field__control--valid {
+    @apply border-accent/50 bg-white text-primary focus:border-accent focus:ring-accent/20;
+  }
+
+  .paciente-consent {
+    @apply flex cursor-pointer items-start gap-2.5 text-sm font-medium text-[#4a7ba7];
+  }
+
+  .paciente-consent--invalid .paciente-consent__check {
+    @apply border-[#e57373] bg-[#fdeaea];
+  }
+
+  .paciente-consent__check {
+    @apply mt-0.5 h-4 w-4 shrink-0 rounded border-2 border-[#1e6bb8] accent-[#1e6bb8];
+  }
+
+  /* Pasarela de pago */
+  .pago-page {
+    background: #f4f7f9;
+  }
+
+  .pago-hero__wave {
+    line-height: 0;
+    margin-bottom: -1px;
+  }
+
+  .pago-page__body {
+    @apply pb-12;
+  }
+
+  .pago-grid {
+    @apply grid gap-6 lg:grid-cols-[1fr_minmax(280px,360px)] lg:items-start;
+  }
+
+  .pago-grid__main,
+  .pago-grid__aside {
+    @apply flex flex-col gap-6;
+  }
+
+  .pago-card {
+    @apply rounded-2xl border border-border bg-white p-6 shadow-[0_4px_24px_rgba(10,53,83,0.08)] md:p-7;
+  }
+
+  .pago-card__title {
+    @apply m-0 font-display text-xl font-bold text-primary md:text-2xl;
+  }
+
+  .pago-card__subtitle {
+    @apply mt-1 mb-5 text-sm text-muted-foreground;
+  }
+
+  .pago-metodos {
+    @apply flex flex-col gap-3;
+  }
+
+  .pago-metodo {
+    @apply flex w-full cursor-pointer items-center gap-4 rounded-xl border-2 border-border bg-[#f8fafc] p-4 text-left transition-all hover:border-accent/40;
+  }
+
+  .pago-metodo--active {
+    @apply border-accent bg-[#e8f7f5] shadow-sm;
+  }
+
+  .pago-metodo__icon {
+    @apply flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white text-accent shadow-sm;
+  }
+
+  .pago-metodo__text {
+    @apply min-w-0 flex-1;
+  }
+
+  .pago-metodo__title {
+    @apply block text-sm font-semibold text-primary;
+  }
+
+  .pago-metodo__desc {
+    @apply mt-0.5 block text-xs text-muted-foreground;
+  }
+
+  .pago-metodo__check {
+    @apply flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent text-white;
+  }
+
+  .pago-tarjeta-panel {
+    @apply mt-6 space-y-4 border-t border-border pt-6;
+  }
+
+  .pago-manual-datos {
+    @apply mt-6 space-y-4 border-t border-border pt-6;
+  }
+
+  .pago-brands {
+    @apply flex flex-wrap gap-2;
+  }
+
+  .pago-brand-chip {
+    @apply rounded-lg border border-border bg-white px-3 py-1.5 text-xs font-semibold text-muted-foreground transition-colors hover:border-accent/50;
+  }
+
+  .pago-brand-chip--active {
+    @apply border-accent bg-[#e8f7f5] text-primary;
+  }
+
+  .pago-field-row {
+    @apply grid gap-4 sm:grid-cols-2;
+  }
+
+  .pago-card-hint {
+    @apply -mt-1 mb-2 text-xs leading-relaxed text-muted-foreground;
+  }
+
+  .pago-secure-box {
+    @apply flex gap-3 rounded-xl border border-[#b8e8e3] bg-[#e8f7f5] px-4 py-3.5 text-sm leading-relaxed text-[#0f4c47];
+  }
+
+  .pago-alt-panel {
+    @apply mt-6 space-y-4 border-t border-border pt-6 text-sm text-muted-foreground;
+  }
+
+  .pago-alt-panel__lead {
+    @apply m-0 leading-relaxed text-primary;
+  }
+
+  .pago-alt-panel__amount {
+    @apply m-0 text-base text-primary;
+  }
+
+  .pago-alt-panel__steps {
+    @apply m-0 list-disc space-y-2 pl-5;
+  }
+
+  .pago-alt-panel__note {
+    @apply m-0 rounded-lg bg-secondary px-3 py-2 text-xs;
+  }
+
+  .pago-bank-dl {
+    @apply m-0 grid gap-3 rounded-xl bg-secondary/80 p-4;
+  }
+
+  .pago-bank-dl dt {
+    @apply text-xs font-semibold uppercase tracking-wide text-muted-foreground;
+  }
+
+  .pago-bank-dl dd {
+    @apply m-0 mt-0.5 font-medium text-primary;
+  }
+
+  .pago-servicio-box {
+    @apply mb-5 flex gap-3 rounded-xl border border-[#c5e4f7] bg-[#e8f4fc] p-4;
+  }
+
+  .pago-servicio-box--empty {
+    @apply border-border bg-secondary/50;
+  }
+
+  .pago-servicio-box__name {
+    @apply m-0 text-sm font-semibold text-primary;
+  }
+
+  .pago-servicio-box__meta {
+    @apply m-0 mt-1 text-xs text-muted-foreground;
+  }
+
+  .pago-totales {
+    @apply m-0 space-y-2 border-b border-border pb-5 text-sm;
+  }
+
+  .pago-totales__row {
+    @apply flex items-center justify-between gap-4;
+  }
+
+  .pago-totales__row dt {
+    @apply text-muted-foreground;
+  }
+
+  .pago-totales__row dd {
+    @apply m-0 font-medium text-primary;
+  }
+
+  .pago-totales__row--total {
+    @apply pt-2 text-base;
+  }
+
+  .pago-totales__row--total dt {
+    @apply font-semibold text-primary;
+  }
+
+  .pago-totales__row--total dd {
+    @apply font-display text-2xl font-bold text-accent;
+  }
+
+  .pago-btn-pay {
+    @apply mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-[#5a7a94] px-6 py-3.5 text-sm font-semibold text-white shadow-sm transition-all hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .pago-btn-back {
+    @apply mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-border bg-white px-6 py-3 text-sm font-medium text-primary transition-colors hover:bg-secondary;
+  }
+
+  .pago-trust {
+    @apply mt-5 flex flex-wrap items-center justify-center gap-4 border-t border-border pt-4 text-xs text-muted-foreground;
+  }
+
+  .pago-trust span {
+    @apply inline-flex items-center gap-1.5;
+  }
+
+  .pago-resumen__hint {
+    @apply mt-3 text-center text-xs leading-relaxed text-muted-foreground;
+  }
+
+  .pago-ayuda__title {
+    @apply m-0 font-display text-lg font-bold text-primary;
+  }
+
+  .pago-ayuda__text {
+    @apply mt-2 mb-4 text-sm text-muted-foreground;
+  }
+
+  .pago-ayuda__link {
+    @apply mb-2 flex items-center gap-2 text-sm font-medium text-accent transition-colors hover:text-primary;
+  }
+
+  .pago-alert {
+    @apply rounded-xl border px-4 py-3 text-sm;
+  }
+
+  .pago-alert--err {
+    @apply border-red-200 bg-red-50 text-red-900;
+  }
+
+  /* Chat lateral de IA */
+  .ai-chat-widget {
+    @apply fixed bottom-5 right-5 z-[70];
+  }
+
+  .ai-chat-launcher {
+    @apply inline-flex items-center gap-2 rounded-full bg-accent px-4 py-3 text-sm font-semibold text-white shadow-lg transition hover:opacity-90;
+  }
+
+  .ai-chat-panel {
+    @apply flex h-[min(78vh,620px)] w-[min(94vw,440px)] flex-col overflow-hidden rounded-2xl border border-border bg-white shadow-2xl;
+  }
+
+  .ai-chat-header {
+    @apply flex items-start justify-between gap-3 border-b border-border bg-primary px-4 py-3 text-white;
+  }
+
+  .ai-chat-title {
+    @apply m-0 text-sm font-semibold;
+  }
+
+  .ai-chat-subtitle {
+    @apply m-0 text-xs text-white/80;
+  }
+
+  .ai-chat-close {
+    @apply rounded-md p-1 text-white/90 hover:bg-white/10;
+  }
+
+  .ai-chat-messages {
+    @apply flex-1 space-y-2 overflow-y-auto bg-secondary/35 p-3;
+  }
+
+  .ai-chat-bubble {
+    @apply m-0 max-w-[88%] rounded-xl px-3 py-2 text-sm leading-relaxed;
+  }
+
+  .ai-chat-bubble--bot {
+    @apply bg-white text-primary shadow-sm;
+  }
+
+  .ai-chat-bubble--user {
+    @apply ml-auto bg-accent text-white;
+  }
+
+  .ai-chat-bubble--card {
+    @apply max-w-full p-0 bg-transparent shadow-none;
+  }
+
+  .ai-assistant-actions {
+    @apply flex flex-wrap gap-2 border-b border-border bg-white px-3 py-2;
+  }
+
+  .ai-assistant-actions__btn {
+    @apply inline-flex items-center gap-1.5 rounded-full border border-border bg-secondary/40 px-2.5 py-1 text-xs font-medium text-primary transition hover:border-accent/40 hover:bg-secondary;
+  }
+
+  .ai-clinic-card {
+    @apply rounded-xl border border-border bg-white p-4 text-sm text-primary shadow-sm;
+  }
+
+  .ai-clinic-card__title {
+    @apply m-0 mb-2 text-base font-bold text-primary;
+  }
+
+  .ai-clinic-card__list {
+    @apply m-0 mb-3 list-disc space-y-1.5 pl-4 text-sm leading-6 text-primary/90;
+  }
+
+  .ai-clinic-card__links {
+    @apply flex flex-wrap gap-2;
+  }
+
+  .ai-clinic-card__link {
+    @apply inline-flex rounded-lg bg-accent px-3 py-1.5 text-xs font-semibold text-white transition hover:opacity-90;
+  }
+
+  .ai-chat-form {
+    @apply flex items-center gap-2 border-t border-border bg-white p-3;
+  }
+
+  .ai-chat-input {
+    @apply h-10 w-full rounded-lg border border-border bg-secondary/50 px-3 py-2 text-sm outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent/20;
+  }
+
+  .ai-chat-send {
+    @apply inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-accent text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .ai-chat-reset {
+    @apply border-t border-border px-3 py-2 text-left text-xs font-medium text-accent hover:bg-secondary;
+  }
+
+  .ai-triage-report {
+    @apply rounded-xl border border-border bg-white p-4 text-sm leading-relaxed text-primary shadow-sm;
+  }
+
+  .ai-triage-report__intro {
+    @apply m-0 mb-4 text-[15px] leading-7 text-primary/90;
+  }
+
+  .ai-triage-report__heading {
+    @apply m-0 mb-2 text-base font-bold text-primary;
+  }
+
+  .ai-triage-report__heading--sub {
+    @apply mt-4 text-sm;
+  }
+
+  .ai-triage-report__tips {
+    @apply m-0 list-disc space-y-1.5 pl-4 text-sm leading-6 text-primary/90;
+  }
+
+  .ai-triage-report__lead {
+    @apply m-0 mb-3 text-sm text-muted-foreground;
+  }
+
+  .ai-triage-report__list {
+    @apply m-0 list-none space-y-4 p-0;
+  }
+
+  .ai-triage-report__item {
+    @apply text-sm leading-6 text-primary/90;
+  }
+
+  .ai-triage-report__item strong {
+    @apply font-semibold text-primary;
+  }
+
+  .ai-triage-report__symptoms {
+    @apply block mt-1 text-xs text-muted-foreground;
+  }
+
+  .ai-triage-report__meta {
+    @apply mt-4 flex flex-wrap items-center gap-2;
+  }
+
+  .ai-triage-report__badge {
+    @apply rounded-full px-2.5 py-0.5 text-xs font-semibold;
+  }
+
+  .ai-triage-report__badge--bajo {
+    @apply bg-emerald-100 text-emerald-800;
+  }
+
+  .ai-triage-report__badge--medio {
+    @apply bg-amber-100 text-amber-900;
+  }
+
+  .ai-triage-report__badge--alto {
+    @apply bg-red-100 text-red-800;
+  }
+
+  .ai-triage-report__action {
+    @apply text-xs font-medium text-accent;
+  }
+
+  .ai-triage-report__specialty {
+    @apply mt-3 mb-0 text-sm text-primary/90;
+  }
+
+  .ai-triage-report__alert {
+    @apply mt-2 mb-0 rounded-lg bg-red-50 px-3 py-2 text-xs text-red-800;
+  }
+
+  .ai-triage-report__disclaimer {
+    @apply mt-4 mb-0 border-t border-border pt-3 text-xs leading-5 text-muted-foreground;
+  }
+}

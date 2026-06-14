@@ -2,20 +2,18 @@
 
 @section('title', $especialidad->exists ? 'Editar especialidad' : 'Nueva especialidad')
 
+@section('page_subtitle', 'Completa la información y guarda.')
+
 @section('content')
-  <div class="row" style="justify-content: space-between; margin-bottom: 12px;">
-    <div>
-      <h1 style="margin:0;">
-        {{ $especialidad->exists ? 'Editar especialidad' : 'Nueva especialidad' }}
-      </h1>
-      <div class="muted">Completa la información y guarda.</div>
-    </div>
-    <a class="btn" href="{{ route('admin.especialidades.index') }}">Volver</a>
+  <div class="page-toolbar">
+    <div></div>
+    <a class="btn btn-soft" href="{{ route('admin.especialidades.index') }}">← Volver</a>
   </div>
 
   <div class="card">
     <form method="POST"
-      action="{{ $especialidad->exists ? route('admin.especialidades.update', $especialidad) : route('admin.especialidades.store') }}">
+      action="{{ $especialidad->exists ? route('admin.especialidades.update', $especialidad) : route('admin.especialidades.store') }}"
+      enctype="multipart/form-data">
       @csrf
       @if ($especialidad->exists)
         @method('PUT')
@@ -28,9 +26,26 @@
           @error('nombre')<div class="muted">{{ $message }}</div>@enderror
         </div>
         <div class="field">
-          <label>Imagen (ruta o nombre archivo)</label>
-          <input name="imagen" value="{{ old('imagen', $especialidad->imagen) }}" />
-          @error('imagen')<div class="muted">{{ $message }}</div>@enderror
+          <label>Imagen (subir archivo)</label>
+          <input type="file" name="imagen_file" accept="image/*" />
+
+          <input
+            type="hidden"
+            name="imagen_actual"
+            value="{{ old('imagen_actual', $especialidad->getRawOriginal('imagen')) }}"
+          />
+
+          @if ($especialidad->imagen)
+            <div style="margin-top:10px;">
+              <div class="muted" style="margin-bottom:6px;">Vista previa (actual):</div>
+              <img
+                src="{{ $especialidad->imagen }}"
+                alt="Imagen especialidad"
+                style="max-width: 160px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.08);"
+              />
+            </div>
+          @endif
+          @error('imagen_file')<div class="muted">{{ $message }}</div>@enderror
         </div>
       </div>
 

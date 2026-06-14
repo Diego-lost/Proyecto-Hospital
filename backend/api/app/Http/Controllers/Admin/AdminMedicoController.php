@@ -26,7 +26,8 @@ class AdminMedicoController extends Controller
     public function create()
     {
         $especialidades = Especialidad::query()->orderBy('nombre')->get();
-        return view('admin.medicos.form', ['medico' => new Medico(), 'especialidades' => $especialidades]);
+
+        return view('admin.medicos.form', ['medico' => new Medico, 'especialidades' => $especialidades]);
     }
 
     public function store(Request $request)
@@ -36,7 +37,19 @@ class AdminMedicoController extends Controller
             'dni' => ['nullable', 'string', 'max:20', 'regex:/^\d+$/', Rule::unique('medicos', 'dni')],
             'especialidad_id' => ['required', 'integer', 'exists:especialidades,id'],
             'foto' => ['nullable', 'string', 'max:255'],
+            'foto_actual' => ['nullable', 'string', 'max:255'],
+            'foto_file' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
         ]);
+
+        if ($request->hasFile('foto_file')) {
+            $disk = (string) config('filesystems.default', 'local');
+            if ($disk === 'local') {
+                $disk = 'public';
+            }
+            $data['foto'] = $request->file('foto_file')->store('medicos', $disk);
+        } else {
+            $data['foto'] = $data['foto_actual'] ?? $data['foto'] ?? null;
+        }
 
         Medico::create($data);
 
@@ -46,6 +59,7 @@ class AdminMedicoController extends Controller
     public function edit(Medico $medico)
     {
         $especialidades = Especialidad::query()->orderBy('nombre')->get();
+
         return view('admin.medicos.form', compact('medico', 'especialidades'));
     }
 
@@ -56,7 +70,19 @@ class AdminMedicoController extends Controller
             'dni' => ['nullable', 'string', 'max:20', 'regex:/^\d+$/', Rule::unique('medicos', 'dni')->ignore($medico->id)],
             'especialidad_id' => ['required', 'integer', 'exists:especialidades,id'],
             'foto' => ['nullable', 'string', 'max:255'],
+            'foto_actual' => ['nullable', 'string', 'max:255'],
+            'foto_file' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
         ]);
+
+        if ($request->hasFile('foto_file')) {
+            $disk = (string) config('filesystems.default', 'local');
+            if ($disk === 'local') {
+                $disk = 'public';
+            }
+            $data['foto'] = $request->file('foto_file')->store('medicos', $disk);
+        } else {
+            $data['foto'] = $data['foto_actual'] ?? $data['foto'] ?? null;
+        }
 
         $medico->update($data);
 
@@ -66,7 +92,7 @@ class AdminMedicoController extends Controller
     public function destroy(Medico $medico)
     {
         $medico->delete();
+
         return redirect()->route('admin.medicos.index');
     }
 }
-

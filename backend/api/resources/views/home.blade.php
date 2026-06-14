@@ -69,12 +69,14 @@
       <h1>Clínica NovaSalud</h1>
       <p>
         Estás en la raíz de la aplicación Laravel. En XAMPP, la página pública con diseño completo
-        vive en la carpeta <strong>frontend</strong> y suele abrirse sola al entrar aquí.
+        es el React compilado: se genera con <code>npm run build</code> en <code>apps/web</code> y se copia a
+        <strong><code>public/clinica/</code></strong> con <code>php artisan frontend:sync</code> (o <code>npm run public:sync</code> desde la raíz del repo).
+        Suele abrirse sola al entrar aquí cuando la URL del front coincide con esta app.
       </p>
       <p class="muted">
         Si ves esta pantalla (por ejemplo con <code>php artisan serve</code>), define
-        <code>FRONTEND_URL</code> en <code>.env</code> con la URL del <code>index.html</code> del
-        frontend, o abre el HTML directamente desde tu servidor.
+        <code>FRONTEND_URL</code> en <code>.env</code> con la URL del sitio (p. ej.
+        <code>…/public/clinica/</code> bajo el mismo host), o abre el sitio desde tu servidor.
       </p>
       <div>
         <a class="btn" href="{{ url('/admin') }}">Panel administrador</a>

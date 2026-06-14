@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\User;
+
 return [
 
     /*
@@ -60,18 +62,10 @@ return [
     */
 
     'providers' => [
-        /*
-         * Panel /admin: usuario definido en config/dev_login.php (prueba sin fila en users).
-         * Para volver a usuarios en BD: driver "eloquent" + model User::class
-         */
         'users' => [
-            'driver' => 'config_dev',
+            'driver' => 'eloquent',
+            'model' => env('AUTH_MODEL', User::class),
         ],
-
-        // 'users' => [
-        //     'driver' => 'eloquent',
-        //     'model' => env('AUTH_MODEL', User::class),
-        // ],
     ],
 
     /*
@@ -114,5 +108,15 @@ return [
     */
 
     'password_timeout' => env('AUTH_PASSWORD_TIMEOUT', 10800),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Email Verification
+    |--------------------------------------------------------------------------
+    */
+
+    'verification' => [
+        'expire' => 60,
+    ],
 
 ];

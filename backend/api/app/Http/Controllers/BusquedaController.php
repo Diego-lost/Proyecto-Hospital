@@ -4,7 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Medico;
 use App\Models\SolicitudCita;
-use App\Services\ConsultasPeruService;
+use App\Services\PeruApiDniService;
+use App\Support\DniPeru;
 use Illuminate\Http\Request;
 
 class BusquedaController extends Controller
@@ -14,7 +15,7 @@ class BusquedaController extends Controller
      */
     public function medicoPorDni(Request $request)
     {
-        $dni = preg_replace('/\s+/', '', (string) $request->query('dni', ''));
+        $dni = DniPeru::digitsOnly((string) $request->query('dni', ''));
         if (strlen($dni) < 4) {
             return response()->json([
                 'ok' => false,
@@ -22,8 +23,9 @@ class BusquedaController extends Controller
             ], 422);
         }
 
+        $candidates = DniPeru::dbLookupCandidates((string) $request->query('dni', ''));
         $medico = Medico::query()
-            ->where('dni', $dni)
+            ->whereIn('dni', $candidates)
             ->with(['especialidad', 'servicios'])
             ->first();
 
@@ -44,9 +46,9 @@ class BusquedaController extends Controller
     /**
      * Últimos datos de contacto registrados para ese DNI de paciente (solicitudes anteriores).
      */
-    public function pacientePorDni(Request $request, ConsultasPeruService $consultasPeru)
+    public function pacientePorDni(Request $request, PeruApiDniService $peruApiDni)
     {
-        $dni = preg_replace('/\s+/', '', (string) $request->query('dni', ''));
+        $dni = DniPeru::digitsOnly((string) $request->query('dni', ''));
         if (strlen($dni) < 4) {
             return response()->json([
                 'ok' => false,
@@ -54,8 +56,10 @@ class BusquedaController extends Controller
             ], 422);
         }
 
+        $candidates = DniPeru::dbLookupCandidates((string) $request->query('dni', ''));
+
         $ultima = SolicitudCita::query()
-            ->where('paciente_dni', $dni)
+            ->whereIn('paciente_dni', $candidates)
             ->orderByDesc('id')
             ->first();
 
@@ -67,12 +71,13 @@ class BusquedaController extends Controller
                     'nombre' => $ultima->nombre,
                     'telefono' => $ultima->telefono,
                     'email' => $ultima->email,
+                    'direccion' => $ultima->paciente_direccion,
                 ],
                 'fuente' => 'local',
             ]);
         }
 
-        $externo = $consultasPeru->consultarDni($dni);
+        $externo = $peruApiDni->consultarDni($dni);
         if ($externo['encontrado']) {
             return response()->json([
                 'ok' => true,
@@ -81,8 +86,9 @@ class BusquedaController extends Controller
                     'nombre' => $externo['nombre'],
                     'telefono' => '',
                     'email' => null,
+                    'direccion' => $externo['direccion'] ?? null,
                 ],
-                'fuente' => 'consultasperu',
+                'fuente' => (string) ($externo['proveedor'] ?? 'peruapi'),
             ]);
         }
 
@@ -90,28 +96,31 @@ class BusquedaController extends Controller
             'ok' => true,
             'encontrado' => false,
             'detalle' => $externo['detalle'] ?? 'sin_datos',
+            'mensaje' => $externo['mensaje'] ?? null,
         ]);
     }
 
     /**
-     * Solo consulta RENIEC vía Consultas Perú (útil para completar nombre del médico en admin).
+     * Consulta nombre por DNI (Perú API o Consultas Perú, según configuración).
      */
-    public function reniecPorDni(Request $request, ConsultasPeruService $consultasPeru)
+    public function reniecPorDni(Request $request, PeruApiDniService $peruApiDni)
     {
-        $dni = preg_replace('/\s+/', '', (string) $request->query('dni', ''));
-        if (strlen($dni) !== 8 || ! ctype_digit($dni)) {
+        $dni = (string) $request->query('dni', '');
+        $canonical = DniPeru::forReniecQuery($dni);
+        if ($canonical === null) {
             return response()->json([
                 'ok' => false,
-                'message' => 'Indica un DNI de 8 dígitos.',
+                'message' => 'Indica un DNI de 7 u 8 dígitos (solo números).',
             ], 422);
         }
 
-        $externo = $consultasPeru->consultarDni($dni);
+        $externo = $peruApiDni->consultarDni($canonical);
         if (! $externo['encontrado']) {
             return response()->json([
                 'ok' => true,
                 'encontrado' => false,
                 'detalle' => $externo['detalle'] ?? 'sin_datos',
+                'mensaje' => $externo['mensaje'] ?? null,
             ]);
         }
 
@@ -120,8 +129,9 @@ class BusquedaController extends Controller
             'encontrado' => true,
             'datos' => [
                 'nombre' => $externo['nombre'],
+                'direccion' => $externo['direccion'] ?? null,
             ],
-            'fuente' => 'consultasperu',
+            'fuente' => (string) ($externo['proveedor'] ?? 'peruapi'),
         ]);
     }
 }

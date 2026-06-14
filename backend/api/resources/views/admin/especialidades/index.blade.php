@@ -1,13 +1,12 @@
 @extends('admin.layout')
 
 @section('title', 'Especialidades')
+@section('page_subtitle', 'Crear, editar y eliminar especialidades.')
 
 @section('content')
-  <div class="row" style="justify-content: space-between; margin-bottom: 12px;">
-    <div>
-      <div class="muted">Crear, editar y eliminar especialidades.</div>
-    </div>
-    <a class="btn btn-primary" href="{{ route('admin.especialidades.create') }}">Nueva</a>
+  <div class="page-toolbar">
+    <div></div>
+    <a class="btn btn-primary" href="{{ route('admin.especialidades.create') }}">+ Nueva</a>
   </div>
 
   <div class="card">

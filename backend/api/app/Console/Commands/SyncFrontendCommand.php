@@ -9,7 +9,7 @@ class SyncFrontendCommand extends Command
 {
     protected $signature = 'frontend:sync';
 
-    protected $description = 'Copia la carpeta frontend/ del repo a public/{clinica} para servir el mismo sitio bajo Laravel (Apache/XAMPP)';
+    protected $description = 'Copia el build del sitio público (apps/web/dist por defecto) a public/{clinica} para servirlo bajo Laravel (Apache/XAMPP)';
 
     public function handle(): int
     {
@@ -18,9 +18,9 @@ class SyncFrontendCommand extends Command
         $target = public_path($subdir);
 
         if ($source === '' || ! is_dir($source)) {
-            $this->error('No se encontró la carpeta origen del frontend.');
-            $this->line('Configura FRONTEND_SYNC_SOURCE en .env con la ruta absoluta a la carpeta frontend,');
-            $this->line('o deja el proyecto en …/ProyectoNuevo/frontend respecto a backend/api.');
+            $this->error('No se encontró la carpeta origen del sitio público.');
+            $this->line('Ejecuta en apps/web: npm install && npm run build (genera apps/web/dist).');
+            $this->line('O configura FRONTEND_SYNC_SOURCE en .env con la ruta absoluta a una carpeta dist/.');
 
             return self::FAILURE;
         }

@@ -1,7 +1,7 @@
 *.log
 .DS_Store
 
-# Entorno y secretos (APP_KEY, BD, CONSULTASPERU_API_TOKEN y cualquier API).
+# Entorno y secretos (APP_KEY, BD, PERU_API_KEY y cualquier API).
 # El template público es .env.example — este archivo y variantes locales no van al repo.
 .env
 .env.local
@@ -19,6 +19,7 @@
 /.zed
 /auth.json
 /node_modules
+/scripts/node_modules
 /public/build
 /public/hot
 /public/storage

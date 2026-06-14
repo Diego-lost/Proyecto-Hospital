@@ -1,13 +1,12 @@
 @extends('admin.layout')
 
 @section('title', 'Médicos')
+@section('page_subtitle', 'Gestiona médicos y su especialidad.')
 
 @section('content')
-  <div class="row" style="justify-content: space-between; margin-bottom: 12px;">
-    <div>
-      <div class="muted">Gestiona médicos y su especialidad.</div>
-    </div>
-    <a class="btn btn-primary" href="{{ route('admin.medicos.create') }}">Nuevo</a>
+  <div class="page-toolbar">
+    <div></div>
+    <a class="btn btn-primary" href="{{ route('admin.medicos.create') }}">+ Nuevo</a>
   </div>
 
   <div class="card" style="margin-bottom: 12px;">

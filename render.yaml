@@ -1,0 +1,76 @@
+# Blueprint Render: API Laravel (backend/api) + Supabase como base de datos.
+# Dashboard: https://dashboard.render.com → New → Blueprint → conecta este repo.
+services:
+  - type: web
+    name: novasalud-api
+    runtime: docker
+    rootDir: backend/api
+    plan: free
+    healthCheckPath: /up
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: "false"
+      - key: LOG_CHANNEL
+        value: stderr
+      - key: LOG_LEVEL
+        value: info
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DB_SSLMODE
+        value: require
+      - key: DB_AI_LOG_SKIP_USER_ID
+        value: "true"
+      - key: SESSION_DRIVER
+        value: database
+      - key: SESSION_SECURE_COOKIE
+        value: "true"
+      - key: SESSION_SAME_SITE
+        value: none
+      - key: CACHE_STORE
+        value: database
+      - key: QUEUE_CONNECTION
+        value: sync
+      - key: CORS_SUPPORTS_CREDENTIALS
+        value: "true"
+      - key: FRONTEND_URL
+        value: https://proyectonuevo-2f2e4.web.app
+      - key: CORS_ALLOWED_ORIGINS
+        value: https://proyectonuevo-2f2e4.web.app
+      - key: APP_KEY
+        sync: false
+      - key: APP_URL
+        sync: false
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        sync: false
+      - key: DB_DATABASE
+        sync: false
+      - key: DB_USERNAME
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: MAIL_MAILER
+        sync: false
+      - key: MAIL_HOST
+        sync: false
+      - key: MAIL_PORT
+        sync: false
+      - key: MAIL_USERNAME
+        sync: false
+      - key: MAIL_PASSWORD
+        sync: false
+      - key: MAIL_FROM_ADDRESS
+        sync: false
+      - key: MAIL_FROM_NAME
+        sync: false
+      - key: PERU_API_KEY
+        sync: false
+      - key: STRIPE_SECRET
+        sync: false
+      - key: STRIPE_PUBLIC_KEY
+        sync: false
+      - key: DXGPT_SUBSCRIPTION_KEY
+        sync: false

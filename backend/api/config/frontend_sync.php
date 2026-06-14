@@ -4,14 +4,14 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Origen del sitio estático (carpeta frontend del repo)
+    | Origen del sitio público (build de React)
     |--------------------------------------------------------------------------
     |
-    | Por defecto: dos niveles arriba de backend/api → …/ProyectoNuevo/frontend
+    | Por defecto: …/ProyectoNuevo/apps/web/dist (npm run build en apps/web).
     |
     */
 
-    'source' => env('FRONTEND_SYNC_SOURCE', realpath(base_path('../../frontend')) ?: ''),
+    'source' => env('FRONTEND_SYNC_SOURCE', realpath(base_path('../../apps/web/dist')) ?: ''),
 
     /*
     |--------------------------------------------------------------------------

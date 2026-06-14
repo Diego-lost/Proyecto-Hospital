@@ -2,18 +2,18 @@
 
 @section('title', $medico->exists ? 'Editar médico' : 'Nuevo médico')
 
+@section('page_subtitle', 'Completa los datos del médico.')
+
 @section('content')
-  <div class="row" style="justify-content: space-between; margin-bottom: 12px;">
-    <div>
-      <h1 style="margin:0;">{{ $medico->exists ? 'Editar médico' : 'Nuevo médico' }}</h1>
-      <div class="muted">Completa los datos del médico.</div>
-    </div>
-    <a class="btn" href="{{ route('admin.medicos.index') }}">Volver</a>
+  <div class="page-toolbar">
+    <div></div>
+    <a class="btn btn-soft" href="{{ route('admin.medicos.index') }}">← Volver</a>
   </div>
 
   <div class="card">
     <form method="POST"
-      action="{{ $medico->exists ? route('admin.medicos.update', $medico) : route('admin.medicos.store') }}">
+      action="{{ $medico->exists ? route('admin.medicos.update', $medico) : route('admin.medicos.store') }}"
+      enctype="multipart/form-data">
       @csrf
       @if ($medico->exists)
         @method('PUT')
@@ -29,7 +29,7 @@
         <div class="field">
           <label for="medico-dni-input">DNI (solo números; único para búsqueda en la web)</label>
           <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:stretch;">
-            <input id="medico-dni-input" name="dni" value="{{ old('dni', $medico->dni) }}" inputmode="numeric" maxlength="8" placeholder="8 dígitos" style="flex:1; min-width:140px; padding:10px 12px; border-radius:10px; border:1px solid var(--admin-line);" />
+            <input id="medico-dni-input" name="dni" value="{{ old('dni', $medico->dni) }}" inputmode="numeric" maxlength="8" placeholder="7 u 8 dígitos" style="flex:1; min-width:140px; padding:10px 12px; border-radius:10px; border:1px solid var(--admin-line);" />
             <button type="button" class="btn" id="medico-reniec-buscar" style="flex-shrink:0;">Buscar en RENIEC</button>
           </div>
           @error('dni')<div class="muted">{{ $message }}</div>@enderror
@@ -49,9 +49,22 @@
         </div>
 
         <div class="field" style="grid-column: 1 / -1;">
-          <label>Foto (ruta o nombre archivo)</label>
-          <input name="foto" value="{{ old('foto', $medico->foto) }}" />
-          @error('foto')<div class="muted">{{ $message }}</div>@enderror
+          <label>Foto (subir archivo)</label>
+          <input type="file" name="foto_file" accept="image/*" />
+          <input type="hidden" name="foto_actual" value="{{ old('foto_actual', $medico->getRawOriginal('foto')) }}" />
+
+          @if ($medico->foto)
+            <div style="margin-top:10px;">
+              <div class="muted" style="margin-bottom:6px;">Vista previa (actual):</div>
+              <img
+                src="{{ $medico->foto }}"
+                alt="Foto médico"
+                style="max-width: 160px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.08);"
+              />
+            </div>
+          @endif
+
+          @error('foto_file')<div class="muted">{{ $message }}</div>@enderror
         </div>
       </div>
 
@@ -70,8 +83,9 @@
       var urlBase = @json(url('/api/busqueda/reniec'));
       btn.addEventListener("click", function () {
         var dni = String(dniInput.value || "").replace(/\s/g, "");
-        if (dni.length !== 8 || !/^\d+$/.test(dni)) {
-          alert("Ingresa un DNI de 8 dígitos.");
+        var digits = dni.replace(/\D/g, "");
+        if (digits.length < 7 || digits.length > 8 || !/^\d+$/.test(digits)) {
+          alert("Ingresa un DNI de 7 u 8 dígitos (solo números).");
           return;
         }
         var prev = btn.textContent;
@@ -91,14 +105,18 @@
               return;
             }
             if (!x.body || !x.body.encontrado || !x.body.datos || !x.body.datos.nombre) {
+              if (x.body && x.body.mensaje) {
+                alert(x.body.mensaje);
+                return;
+              }
               var det = x.body && x.body.detalle ? x.body.detalle : "";
               var msgs = {
-                sin_token: "Falta CONSULTASPERU_API_TOKEN en .env del servidor.",
-                dni_invalido: "El DNI debe tener 8 dígitos.",
-                red: "Error de conexión con Consultas Perú.",
-                no_autorizado: "Token inválido o vencido (CONSULTASPERU_API_TOKEN).",
-                error_http: "El servicio respondió con error.",
-                sin_datos: "No hay datos en RENIEC para ese DNI.",
+                sin_token: "Falta PERU_API_KEY en .env del servidor (Perú API — peruapi.com).",
+                dni_invalido: "El DNI debe tener 7 u 8 dígitos (solo números).",
+                red: "Error de conexión con Perú API.",
+                no_autorizado: "Perú API rechazó la consulta (API Key inválida, IP no permitida o límite de plan). Revisa PERU_API_KEY y tu cuenta en peruapi.com.",
+                error_http: "Perú API respondió con error.",
+                sin_datos: "No hay datos para ese DNI.",
               };
               alert(msgs[det] || msgs.sin_datos);
               return;

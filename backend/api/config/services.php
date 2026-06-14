@@ -36,12 +36,19 @@ return [
     ],
 
     /*
-    | Consultas Perú (CPE API) — consulta DNI: https://docs.consultasperu.com/api-consultas/dni
+    | Perú API — consulta DNI: https://peruapi.com/ (GET /api/dni/{dni}?api_token=…)
     */
-    'consultasperu' => [
-        'token' => env('CONSULTASPERU_API_TOKEN'),
-        'url' => env('CONSULTASPERU_API_URL', 'https://api.consultasperu.com/api/v1/query'),
-        'timeout' => (int) env('CONSULTASPERU_TIMEOUT', 15),
+    'peruapi' => [
+        'key' => env('PERU_API_KEY'),
+        'base_url' => env('PERU_API_BASE_URL', 'https://peruapi.com'),
+        'timeout' => (int) env('PERU_API_TIMEOUT', 15),
+    ],
+
+    'stripe' => [
+        'secret' => env('STRIPE_SECRET'),
+        'public' => env('STRIPE_PUBLIC_KEY'),
+        'webhook_secret' => env('STRIPE_WEBHOOK_SECRET'),
+        'currency' => strtolower((string) env('STRIPE_CURRENCY', 'pen')),
     ],
 
 ];

@@ -1,0 +1,26 @@
+{
+  "name": "proyecto-nuevo",
+  "private": true,
+  "description": "Monorepo: React apps/web + Laravel backend/api. Desarrollo conjunto: npm run dev",
+  "scripts": {
+    "web:install": "npm install --prefix apps/web",
+    "web:dev": "npm run dev --prefix apps/web",
+    "web:build": "npm run build --prefix apps/web",
+    "web:verify-supabase": "npm run verify:supabase --prefix apps/web",
+    "dev:api": "composer --working-dir=backend/api run serve-api",
+    "dev": "concurrently -k -n web,api -c cyan,magenta \"npm run web:dev\" \"npm run dev:api\"",
+    "public:sync": "npm run web:build && composer -d backend/api run sync-frontend",
+    "deploy:hosting": "npm run web:build && npx firebase deploy --only hosting",
+    "firebase:login": "npx firebase login",
+    "supabase:start": "npx supabase start",
+    "supabase:stop": "npx supabase stop",
+    "supabase:status": "npx supabase status"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "firebase-tools": "^15.19.0"
+  },
+  "dependencies": {
+    "@dataconnect/generated": "file:src/dataconnect-generated"
+  }
+}

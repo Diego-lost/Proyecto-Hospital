@@ -1,14 +1,9 @@
 @extends('admin.layout')
 
 @section('title', 'Solicitudes de citas')
+@section('page_subtitle', 'Bandeja de solicitudes recibidas desde la web.')
 
 @section('content')
-  <div class="row" style="justify-content: space-between; margin-bottom: 12px;">
-    <div>
-      <h1 style="margin:0;">Solicitudes de citas</h1>
-      <div class="muted">Bandeja de solicitudes recibidas desde la web.</div>
-    </div>
-  </div>
 
   <div class="card">
     <table class="table">
@@ -16,6 +11,7 @@
         <tr>
           <th>ID</th>
           <th>DNI pac.</th>
+          <th>Dirección</th>
           <th>Paciente</th>
           <th>Contacto</th>
           <th>Médico</th>
@@ -30,6 +26,7 @@
           <tr>
             <td>{{ $s->id }}</td>
             <td class="muted">{{ $s->paciente_dni ?? '—' }}</td>
+            <td class="muted" style="max-width: 200px;">{{ $s->paciente_direccion ?? '—' }}</td>
             <td>
               <div style="font-weight: 800;">{{ $s->nombre }}</div>
               <div class="muted">{{ $s->motivo ?? '—' }}</div>
@@ -75,7 +72,7 @@
             </td>
           </tr>
         @empty
-          <tr><td colspan="9" class="muted">Sin registros.</td></tr>
+          <tr><td colspan="10" class="muted">Sin registros.</td></tr>
         @endforelse
       </tbody>
     </table>

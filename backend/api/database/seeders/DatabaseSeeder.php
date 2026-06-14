@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -9,11 +10,16 @@ class DatabaseSeeder extends Seeder
 {
     use WithoutModelEvents;
 
-    /**
-     * Seed the application's database.
-     */
     public function run(): void
     {
-        // Login del panel: ver config/dev_login.php (no se usa tabla users para autenticar).
+        User::query()->firstOrCreate(
+            ['email' => env('ADMIN_EMAIL', 'admin@local.test')],
+            [
+                'name' => env('ADMIN_NAME', 'Administrador'),
+                'password' => env('ADMIN_PASSWORD', 'password'),
+                'role' => 'admin',
+                'email_verified_at' => now(),
+            ],
+        );
     }
 }

@@ -2,13 +2,12 @@
 
 @section('title', $servicio->exists ? 'Editar servicio' : 'Nuevo servicio')
 
+@section('page_subtitle', 'Completa los datos del servicio.')
+
 @section('content')
-  <div class="row" style="justify-content: space-between; margin-bottom: 12px;">
-    <div>
-      <h1 style="margin:0;">{{ $servicio->exists ? 'Editar servicio' : 'Nuevo servicio' }}</h1>
-      <div class="muted">Completa los datos del servicio.</div>
-    </div>
-    <a class="btn" href="{{ route('admin.servicios.index') }}">Volver</a>
+  <div class="page-toolbar">
+    <div></div>
+    <a class="btn btn-soft" href="{{ route('admin.servicios.index') }}">← Volver</a>
   </div>
 
   <div class="card">

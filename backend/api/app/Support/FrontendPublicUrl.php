@@ -5,8 +5,8 @@ namespace App\Support;
 use Illuminate\Support\Facades\URL;
 
 /**
- * URL del sitio estático NovaSalud (carpeta frontend).
- * Misma lógica que usa el panel admin para "Ver sitio web".
+ * URL del sitio público NovaSalud (React compilado en public/{subdir}, p. ej. public/clinica).
+ * Misma lógica que usa el panel admin para "Ver sitio web". Origen del build: apps/web/dist + frontend:sync.
  */
 final class FrontendPublicUrl
 {
@@ -21,18 +21,21 @@ final class FrontendPublicUrl
         // No usar solo runningInConsole(): en PHPUnit los tests HTTP siguen en SAPI cli.
         $publicRootPath = self::laravelPublicRootFromRequest();
         if ($publicRootPath !== null) {
-            $path = preg_replace('#/backend/api/public$#', '/frontend/', $publicRootPath);
-
-            return request()->getSchemeAndHttpHost().$path;
+            return self::clinicaUnderPublicPath(request()->getSchemeAndHttpHost(), $publicRootPath);
         }
 
         $root = rtrim(URL::to('/'), '/');
+        $root = self::preferRequestRootForDevServer($root);
 
         if (preg_match('#/backend/api/public$#', $root)) {
-            return preg_replace('#/backend/api/public$#', '/frontend/', $root);
+            return self::clinicaUnderPublicPathFromFullRoot($root);
         }
 
-        // artisan serve / raíz sin …/backend/api/public → el "sitio" no es esta URL.
+        // php artisan serve (:8000…): preferir build sincronizado en public/{clinica}; si no hay, Vite (:5173).
+        if (self::needsLocalStaticFallback($root) && self::rootLooksLikeArtisanServe($root)) {
+            return self::localArtisanServePublicUrl($root);
+        }
+
         if (self::needsLocalStaticFallback($root)) {
             $fallback = config('app.frontend_url_fallback');
             if (is_string($fallback) && $fallback !== '') {
@@ -44,11 +47,69 @@ final class FrontendPublicUrl
     }
 
     /**
+     * Misma carpeta que copia `php artisan frontend:sync` (config frontend_sync.target_subdir).
+     */
+    private static function clinicaUnderPublicPath(string $schemeAndHttpHost, string $laravelPublicBasePath): string
+    {
+        $subdir = trim((string) config('frontend_sync.target_subdir', 'clinica'), '/');
+        $base = rtrim(str_replace('\\', '/', $laravelPublicBasePath), '/');
+
+        return rtrim($schemeAndHttpHost, '/').$base.'/'.$subdir.'/';
+    }
+
+    private static function clinicaUnderPublicPathFromFullRoot(string $root): string
+    {
+        $subdir = trim((string) config('frontend_sync.target_subdir', 'clinica'), '/');
+
+        return rtrim($root, '/').'/'.$subdir.'/';
+    }
+
+    /**
+     * Si APP_URL no lleva puerto pero entras por artisan serve (:8000), URL::to('/') no
+     * detecta el entorno dev; usamos el host (y puerto) de la petición HTTP actual.
+     */
+    private static function preferRequestRootForDevServer(string $rootFromAppUrl): string
+    {
+        $parts = parse_url($rootFromAppUrl);
+        if (! is_array($parts)) {
+            return $rootFromAppUrl;
+        }
+
+        $path = isset($parts['path']) ? rtrim((string) $parts['path'], '/') : '';
+        if ($path !== '' && $path !== '/') {
+            return $rootFromAppUrl;
+        }
+
+        $portFromUrl = (int) ($parts['port'] ?? 0);
+        if ($portFromUrl >= 8000 && $portFromUrl < 9010) {
+            return $rootFromAppUrl;
+        }
+
+        $request = request();
+        if (! $request || ! $request->hasHeader('Host')) {
+            return $rootFromAppUrl;
+        }
+
+        $port = (int) $request->getPort();
+        if ($port < 8000 || $port >= 9010) {
+            return $rootFromAppUrl;
+        }
+
+        $host = (string) ($parts['host'] ?? '');
+        if ($host !== '127.0.0.1' && $host !== 'localhost') {
+            return $rootFromAppUrl;
+        }
+
+        return rtrim($request->getSchemeAndHttpHost(), '/');
+    }
+
+    /**
      * true cuando la URL generada es solo la app Laravel en desarrollo (p. ej. :8000), no el HTML estático.
      */
     private static function needsLocalStaticFallback(string $root): bool
     {
-        if (str_contains($root, '/frontend')) {
+        $path = (string) (parse_url($root, PHP_URL_PATH) ?? '');
+        if (preg_match('#/apps/web/dist(?:/|$)#', $path) || preg_match('#/clinica(?:/|$)#', $path)) {
             return false;
         }
 
@@ -60,6 +121,51 @@ final class FrontendPublicUrl
         }
 
         return false;
+    }
+
+    /**
+     * true cuando la URL de la app es típica de `php artisan serve` (puerto 8000–9009).
+     */
+    private static function rootLooksLikeArtisanServe(string $root): bool
+    {
+        $port = (int) (parse_url($root, PHP_URL_PORT) ?? 0);
+
+        return $port >= 8000 && $port < 9010;
+    }
+
+    /**
+     * Con solo `php artisan serve`, sirve el React ya copiado a public/{subdir} (frontend:sync).
+     * Si aún no hay build, se asume Vite en :5173 (npm run dev en la raíz del monorepo).
+     */
+    private static function localArtisanServePublicUrl(string $root): string
+    {
+        $subdir = trim((string) config('frontend_sync.target_subdir', 'clinica'), '/');
+        if ($subdir === '') {
+            return self::viteDevUrlFromLaravelRoot($root);
+        }
+
+        $index = public_path($subdir.'/index.html');
+        if (is_file($index)) {
+            return rtrim($root, '/').'/'.$subdir.'/';
+        }
+
+        return self::viteDevUrlFromLaravelRoot($root);
+    }
+
+    /**
+     * URL del dev server de Vite (mismo host que Laravel, puerto 5173).
+     */
+    private static function viteDevUrlFromLaravelRoot(string $root): string
+    {
+        $parts = parse_url($root);
+        if (! is_array($parts)) {
+            return 'http://127.0.0.1:5173/';
+        }
+
+        $scheme = $parts['scheme'] ?? 'http';
+        $host = $parts['host'] ?? '127.0.0.1';
+
+        return $scheme.'://'.$host.':5173/';
     }
 
     /**

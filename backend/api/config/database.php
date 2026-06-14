@@ -20,6 +20,11 @@ return [
     'default' => env('DB_CONNECTION', 'sqlite'),
 
     /*
+     * Ver comentario DB_AI_LOG_SKIP_USER_ID en .env.example (Supabase: ai_interaction_logs.user_id UUID).
+     */
+    'ai_log_skip_user_id' => env('DB_AI_LOG_SKIP_USER_ID', false),
+
+    /*
     |--------------------------------------------------------------------------
     | Database Connections
     |--------------------------------------------------------------------------
@@ -97,6 +102,11 @@ return [
             'prefix_indexes' => true,
             'search_path' => 'public',
             'sslmode' => env('DB_SSLMODE', 'prefer'),
+            'options' => extension_loaded('pdo_pgsql') ? array_filter([
+                PDO::ATTR_TIMEOUT => env('DB_CONNECT_TIMEOUT') !== null
+                    ? (int) env('DB_CONNECT_TIMEOUT')
+                    : null,
+            ]) : [],
         ],
 
         'sqlsrv' => [

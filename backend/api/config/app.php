@@ -56,11 +56,11 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Sitio público (frontend estático NovaSalud)
+    | Sitio público NovaSalud (React compilado en public/{clinica} vía frontend:sync)
     |--------------------------------------------------------------------------
     |
-    | Si no defines FRONTEND_URL en .env, en instalaciones tipo XAMPP se intentará deducir
-    | reemplazando /backend/api/public por /frontend/ en APP_URL.
+    | Si no defines FRONTEND_URL en .env, en instalaciones tipo XAMPP se deduce la URL bajo
+    | la misma carpeta public de Laravel: …/backend/api/public/clinica/
     |
     */
 
@@ -74,7 +74,7 @@ return [
 
     'frontend_url_fallback' => env(
         'FRONTEND_URL_FALLBACK',
-        'http://localhost/ProyectoNuevo/frontend/'
+        'http://127.0.0.1:8000/clinica/'
     ),
 
     /*

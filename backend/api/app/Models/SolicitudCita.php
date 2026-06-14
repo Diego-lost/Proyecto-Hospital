@@ -12,6 +12,7 @@ class SolicitudCita extends Model
     protected $fillable = [
         'nombre',
         'paciente_dni',
+        'paciente_direccion',
         'telefono',
         'email',
         'especialidad',
@@ -19,10 +20,22 @@ class SolicitudCita extends Model
         'fecha',
         'hora',
         'motivo',
+        'triage_riesgo',
+        'triage_accion',
+        'triage_resumen',
         'motivo_cancelacion',
         'estado',
+        'prioridad',
+        'seguimiento_mensaje',
         'origen',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'triage_resumen' => 'array',
+        ];
+    }
 
     public function medico(): BelongsTo
     {

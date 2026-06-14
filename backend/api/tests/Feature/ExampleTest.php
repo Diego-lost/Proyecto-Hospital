@@ -11,7 +11,7 @@ class ExampleTest extends TestCase
 
     public function test_the_application_returns_a_successful_response(): void
     {
-        $this->get(route('home'))
-            ->assertOk();
+        // La ruta "home" puede responder 302 (redirección al frontend); el endpoint de salud debe responder.
+        $this->get('/up')->assertSuccessful();
     }
 }

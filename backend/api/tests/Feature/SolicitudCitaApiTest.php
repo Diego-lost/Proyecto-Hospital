@@ -14,6 +14,7 @@ class SolicitudCitaApiTest extends TestCase
         $res = $this->postJson(route('api.solicitudes-citas.store'), [
             'nombre' => 'Juan Perez',
             'paciente_dni' => '40123456',
+            'paciente_direccion' => 'Av. Principal 123, Lima',
             'telefono' => '999999999',
             'email' => 'juan@example.com',
             'especialidad' => 'Cardiología',
@@ -31,8 +32,24 @@ class SolicitudCitaApiTest extends TestCase
         $this->assertDatabaseHas('solicitudes_citas', [
             'nombre' => 'Juan Perez',
             'paciente_dni' => '40123456',
+            'paciente_direccion' => 'Av. Principal 123, Lima',
             'telefono' => '999999999',
             'estado' => 'nueva',
+        ]);
+    }
+
+    public function test_dni_de_siete_digitos_se_normaliza_a_ocho_en_bd(): void
+    {
+        $this->postJson(route('api.solicitudes-citas.store'), [
+            'nombre' => 'Pedro Siete',
+            'paciente_dni' => '1234567',
+            'paciente_direccion' => 'Urbanización Los Pinos',
+            'telefono' => '987654321',
+        ])->assertCreated();
+
+        $this->assertDatabaseHas('solicitudes_citas', [
+            'nombre' => 'Pedro Siete',
+            'paciente_dni' => '01234567',
         ]);
     }
 
@@ -40,11 +57,15 @@ class SolicitudCitaApiTest extends TestCase
     {
         $this->postJson(route('api.solicitudes-citas.store'), [
             'nombre' => 'A',
+            'paciente_dni' => '11111111',
+            'paciente_direccion' => 'Dir A',
             'telefono' => '1',
         ])->assertCreated();
 
         $this->postJson(route('api.solicitudes-citas.store'), [
             'nombre' => 'B',
+            'paciente_dni' => '22222222',
+            'paciente_direccion' => 'Dir B',
             'telefono' => '2',
         ])->assertCreated();
 
@@ -59,6 +80,8 @@ class SolicitudCitaApiTest extends TestCase
     {
         $create = $this->postJson(route('api.solicitudes-citas.store'), [
             'nombre' => 'A',
+            'paciente_dni' => '33333333',
+            'paciente_direccion' => 'Calle 1',
             'telefono' => '1',
         ])->assertCreated();
 
@@ -82,6 +105,8 @@ class SolicitudCitaApiTest extends TestCase
     {
         $create = $this->postJson(route('api.solicitudes-citas.store'), [
             'nombre' => 'A',
+            'paciente_dni' => '33333333',
+            'paciente_direccion' => 'Calle 1',
             'telefono' => '1',
         ])->assertCreated();
 
@@ -97,6 +122,8 @@ class SolicitudCitaApiTest extends TestCase
     {
         $create = $this->postJson(route('api.solicitudes-citas.store'), [
             'nombre' => 'A',
+            'paciente_dni' => '33333333',
+            'paciente_direccion' => 'Calle 1',
             'telefono' => '1',
         ])->assertCreated();
 
