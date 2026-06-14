@@ -25,6 +25,7 @@ return [
         'forgot-password',
         'reset-password',
         'email/*',
+        'api/auth/*',
     ],
     'allowed_methods' => ['*'],
     'allowed_origins' => $origins !== [] ? $origins : ['*'],

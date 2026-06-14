@@ -1,4 +1,4 @@
-import { apiBase } from '../api';
+import { apiBase, apiJson } from '../api';
 
 export type AuthUser = {
   id: number;
@@ -10,6 +10,7 @@ export type AuthUser = {
 type AuthResponse = {
   user: AuthUser;
   redirect_url: string;
+  token?: string;
 };
 
 type MeResponse = {
@@ -20,7 +21,40 @@ type CsrfResponse = {
   token: string;
 };
 
+const SPA_TOKEN_KEY = 'novasalud_spa_token';
+
 let csrfToken: string | null = null;
+
+function isCrossOriginApi(): boolean {
+  if (typeof window === 'undefined') {
+    return false;
+  }
+  try {
+    return new URL(`${apiBase()}/`).origin !== window.location.origin;
+  } catch {
+    return false;
+  }
+}
+
+function readSpaToken(): string | null {
+  try {
+    return sessionStorage.getItem(SPA_TOKEN_KEY);
+  } catch {
+    return null;
+  }
+}
+
+function writeSpaToken(token: string | null): void {
+  try {
+    if (token) {
+      sessionStorage.setItem(SPA_TOKEN_KEY, token);
+    } else {
+      sessionStorage.removeItem(SPA_TOKEN_KEY);
+    }
+  } catch {
+    // ignore
+  }
+}
 
 async function ensureCsrfToken(): Promise<string> {
   if (csrfToken) {
@@ -42,7 +76,7 @@ async function ensureCsrfToken(): Promise<string> {
   return csrfToken;
 }
 
-async function authJson<T>(path: string, init?: RequestInit): Promise<T> {
+async function sessionAuthJson<T>(path: string, init?: RequestInit): Promise<T> {
   const token = await ensureCsrfToken();
   const base = apiBase();
   const method = String(init?.method ?? 'GET').toUpperCase();
@@ -60,6 +94,39 @@ async function authJson<T>(path: string, init?: RequestInit): Promise<T> {
     headers,
   });
 
+  return parseAuthResponse<T>(res, path);
+}
+
+async function spaAuthJson<T>(path: string, init?: RequestInit): Promise<T> {
+  const method = String(init?.method ?? 'GET').toUpperCase();
+  const headers = new Headers(init?.headers);
+  headers.set('Accept', 'application/json');
+  if (method !== 'GET' && method !== 'HEAD' && !headers.has('Content-Type')) {
+    headers.set('Content-Type', 'application/json');
+  }
+
+  const bearer = readSpaToken();
+  if (bearer) {
+    headers.set('Authorization', `Bearer ${bearer}`);
+  }
+
+  const result = await apiJson<T>(`/api/auth${path}`, {
+    ...init,
+    headers,
+  });
+
+  return result;
+}
+
+async function authJson<T>(path: string, init?: RequestInit): Promise<T> {
+  if (isCrossOriginApi()) {
+    return spaAuthJson<T>(path, init);
+  }
+
+  return sessionAuthJson<T>(path, init);
+}
+
+async function parseAuthResponse<T>(res: Response, path: string): Promise<T> {
   const bodyText = await res.text();
   let parsed: unknown = null;
   if (bodyText.trim() !== '') {
@@ -78,7 +145,7 @@ async function authJson<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export async function getCurrentUser(): Promise<AuthUser | null> {
-  const data = await authJson<MeResponse>('/auth/me');
+  const data = await authJson<MeResponse>('/me');
   return data.user;
 }
 
@@ -88,10 +155,16 @@ export async function login(payload: {
   remember?: boolean;
 }): Promise<AuthResponse> {
   csrfToken = null;
-  return authJson<AuthResponse>('/login', {
+  const result = await authJson<AuthResponse>('/login', {
     method: 'POST',
     body: JSON.stringify(payload),
   });
+
+  if (result.token) {
+    writeSpaToken(result.token);
+  }
+
+  return result;
 }
 
 export type RegisterPendingResponse = {
@@ -122,7 +195,7 @@ export async function register(payload: {
 
 export async function resendVerification(email: string): Promise<{ message: string }> {
   csrfToken = null;
-  return authJson<{ message: string }>('/email/resend-verification', {
+  return authJson<{ message: string }>('/resend-verification', {
     method: 'POST',
     body: JSON.stringify({ email }),
   });
@@ -130,10 +203,12 @@ export async function resendVerification(email: string): Promise<{ message: stri
 
 export async function logout(): Promise<{ redirect_url: string }> {
   csrfToken = null;
-  return authJson<{ redirect_url: string }>('/logout', {
+  const result = await authJson<{ redirect_url: string }>('/logout', {
     method: 'POST',
     body: JSON.stringify({}),
   });
+  writeSpaToken(null);
+  return result;
 }
 
 export async function requestPasswordReset(email: string): Promise<{ message: string }> {
@@ -151,10 +226,16 @@ export async function resetPassword(payload: {
   password_confirmation: string;
 }): Promise<AuthResponse & { message: string }> {
   csrfToken = null;
-  return authJson<AuthResponse & { message: string }>('/reset-password', {
+  const result = await authJson<AuthResponse & { message: string }>('/reset-password', {
     method: 'POST',
     body: JSON.stringify(payload),
   });
+
+  if (result.token) {
+    writeSpaToken(result.token);
+  }
+
+  return result;
 }
 
 export function followAuthRedirect(redirectUrl: string): void {

@@ -17,6 +17,13 @@ use App\Http\Controllers\MedicoController;
 use App\Http\Controllers\PagoController;
 use App\Http\Controllers\ServicioController;
 use App\Http\Controllers\StripeWebhookController;
+use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Auth\EmailVerificationController;
+use App\Http\Controllers\Auth\ForgotPasswordController;
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Http\Middleware\EnsureFrontendOrigin;
 use Illuminate\Support\Facades\Route;
 
 Route::name('api.')->group(function () {
@@ -73,4 +80,18 @@ Route::name('api.')->group(function () {
 
     Route::post('stripe/webhook', StripeWebhookController::class)
         ->name('stripe.webhook');
+
+    /*
+     * Auth SPA cross-origin (Firebase + API en Render): sin cookies/CSRF.
+     * El front envía Origin y, tras login, Authorization: Bearer.
+     */
+    Route::prefix('auth')->name('auth.')->middleware([EnsureFrontendOrigin::class, 'throttle:30,1'])->group(function () {
+        Route::post('register', [RegisterController::class, 'store'])->name('register');
+        Route::post('login', [LoginController::class, 'store'])->name('login');
+        Route::post('logout', [LoginController::class, 'destroy'])->name('logout');
+        Route::get('me', [AuthController::class, 'me'])->name('me');
+        Route::post('forgot-password', [ForgotPasswordController::class, 'store'])->name('forgot-password');
+        Route::post('reset-password', [ResetPasswordController::class, 'store'])->name('reset-password');
+        Route::post('resend-verification', [EmailVerificationController::class, 'resend'])->name('resend-verification');
+    });
 });
