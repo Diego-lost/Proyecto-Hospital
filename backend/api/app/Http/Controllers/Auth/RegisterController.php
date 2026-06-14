@@ -9,6 +9,7 @@ use App\Support\MailDelivery;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Database\QueryException;
 use Illuminate\View\View;
 
 class RegisterController extends Controller
@@ -39,12 +40,24 @@ class RegisterController extends Controller
             return back()->withErrors(['email' => $error])->withInput();
         }
 
-        $user = User::query()->create([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'password' => $validated['password'],
-            'role' => $validated['role'],
-        ]);
+        $user = null;
+
+        try {
+            $user = User::query()->create([
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'password' => $validated['password'],
+                'role' => $validated['role'],
+            ]);
+        } catch (QueryException) {
+            $error = 'No se pudo conectar con la base de datos. En Render configura Supabase Session pooler (no la conexión directa db.xxx.supabase.co).';
+
+            if ($request->wantsJson()) {
+                return response()->json(['message' => $error], 503);
+            }
+
+            return back()->withErrors(['email' => $error])->withInput();
+        }
 
         $subject = 'Ingresa a tu cuenta — Clínica NovaSalud';
 

@@ -34,6 +34,20 @@ Route::name('api.')->group(function () {
         ]);
     })->name('status');
 
+    Route::get('/health/db', function () {
+        try {
+            \Illuminate\Support\Facades\DB::connection()->getPdo();
+
+            return response()->json(['ok' => true, 'database' => 'connected']);
+        } catch (\Throwable) {
+            return response()->json([
+                'ok' => false,
+                'database' => 'failed',
+                'hint' => 'En Render usa Supabase Session pooler (Database → Connection string → Session), no db.xxx.supabase.co directo.',
+            ], 503);
+        }
+    })->name('health.db');
+
     Route::prefix('busqueda')->name('busqueda.')->group(function () {
         Route::get('medico', [BusquedaController::class, 'medicoPorDni'])->name('medico');
         Route::get('paciente', [BusquedaController::class, 'pacientePorDni'])->name('paciente');
