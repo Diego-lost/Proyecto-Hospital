@@ -83,7 +83,7 @@ final class DxGptDiagnoseClient
                 .'& '.("'".str_replace("'", "''", $node)."'").' '
                 .str_replace("'", "''", $scriptName)
                 .' @'.str_replace("'", "''", $payloadFile)
-                .' | Out-File -Encoding utf8 '.str_replace("'", "''", $outputFile);
+                .' 2>&1 | Out-File -Encoding utf8 '.str_replace("'", "''", $outputFile);
             $cmd = 'powershell -NoProfile -ExecutionPolicy Bypass -Command '.escapeshellarg($ps);
             exec($cmd, $execOut, $exitCode);
             $output = is_file($outputFile) ? (string) file_get_contents($outputFile) : '';

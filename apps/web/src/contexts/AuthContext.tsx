@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
-import { getCurrentUser, logout as logoutRequest, type AuthUser } from '../lib/authApi';
+import { getCurrentUser, consumeSpaTokenFromUrl, logout as logoutRequest, type AuthUser } from '../lib/authApi';
 
 type AuthContextValue = {
   user: AuthUser | null;
@@ -26,6 +26,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     void (async () => {
       try {
+        consumeSpaTokenFromUrl();
         await refresh();
       } finally {
         setLoading(false);

@@ -135,13 +135,19 @@ final class FrontendPublicUrl
 
     /**
      * Con solo `php artisan serve`, sirve el React ya copiado a public/{subdir} (frontend:sync).
-     * Si aún no hay build, se asume Vite en :5173 (npm run dev en la raíz del monorepo).
+     * En local, si Vite (:5173) está activo, se prefiere al build estático (suele quedar desactualizado).
      */
     private static function localArtisanServePublicUrl(string $root): string
     {
+        $viteUrl = self::viteDevUrlFromLaravelRoot($root);
+
+        if (app()->environment('local') && self::viteDevServerReachable($root)) {
+            return $viteUrl;
+        }
+
         $subdir = trim((string) config('frontend_sync.target_subdir', 'clinica'), '/');
         if ($subdir === '') {
-            return self::viteDevUrlFromLaravelRoot($root);
+            return $viteUrl;
         }
 
         $index = public_path($subdir.'/index.html');
@@ -149,7 +155,30 @@ final class FrontendPublicUrl
             return rtrim($root, '/').'/'.$subdir.'/';
         }
 
-        return self::viteDevUrlFromLaravelRoot($root);
+        return $viteUrl;
+    }
+
+    /**
+     * Comprueba si el dev server de Vite responde en el puerto 5173.
+     */
+    private static function viteDevServerReachable(string $root): bool
+    {
+        $parts = parse_url($root);
+        $host = is_array($parts) ? (string) ($parts['host'] ?? '127.0.0.1') : '127.0.0.1';
+        if ($host === 'localhost') {
+            $host = '127.0.0.1';
+        }
+
+        $errno = 0;
+        $errstr = '';
+        $socket = @fsockopen($host, 5173, $errno, $errstr, 0.25);
+        if ($socket === false) {
+            return false;
+        }
+
+        fclose($socket);
+
+        return true;
     }
 
     /**

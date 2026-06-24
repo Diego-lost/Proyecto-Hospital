@@ -57,6 +57,7 @@ Route::name('api.')->group(function () {
     Route::prefix('solicitudes-citas')->name('solicitudes-citas.')->group(function () {
         Route::get('/', [CitaController::class, 'index'])->name('index');
         Route::post('/', [CitaController::class, 'store'])->name('store');
+        Route::get('{solicitud}/comprobante', [CitaController::class, 'comprobante'])->name('comprobante');
         Route::patch('{solicitud}/cancelar', [CitaController::class, 'cancelar'])->name('cancelar');
         Route::patch('{solicitud}/reprogramar', [CitaController::class, 'reprogramar'])->name('reprogramar');
     });

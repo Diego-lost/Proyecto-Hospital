@@ -42,6 +42,7 @@ class PagoController extends Controller
 
         $data = $request->validate([
             'servicio_id' => ['required', 'integer', 'exists:servicios,id'],
+            'solicitud_cita_id' => ['nullable', 'integer', 'exists:solicitudes_citas,id'],
             'cliente_nombre' => ['required', 'string', 'max:120'],
             'cliente_email' => ['required', 'email', 'max:160'],
             'cliente_telefono' => ['nullable', 'string', 'max:40'],
@@ -61,6 +62,7 @@ class PagoController extends Controller
 
         $pago = Pago::query()->create([
             'servicio_id' => $servicio->id,
+            'solicitud_cita_id' => $data['solicitud_cita_id'] ?? null,
             'cliente_nombre' => $data['cliente_nombre'],
             'cliente_email' => $data['cliente_email'],
             'cliente_telefono' => $data['cliente_telefono'] ?? null,
@@ -70,8 +72,21 @@ class PagoController extends Controller
             'estado' => Pago::ESTADO_PENDING,
         ]);
 
+        $solicitudCitaId = $data['solicitud_cita_id'] ?? null;
+        $successUrl = ($solicitudCitaId !== null)
+            ? FrontendPagoUrl::exitoCitaStripe((int) $solicitudCitaId)
+            : FrontendPagoUrl::exitoStripe();
+
         try {
             Stripe::setApiKey($secret);
+
+            $metadata = [
+                'pago_id' => (string) $pago->id,
+                'servicio_id' => (string) $servicio->id,
+            ];
+            if ($solicitudCitaId !== null) {
+                $metadata['solicitud_cita_id'] = (string) $solicitudCitaId;
+            }
 
             $session = StripeCheckoutSession::create([
                 'mode' => 'payment',
@@ -88,12 +103,9 @@ class PagoController extends Controller
                         ],
                     ],
                 ]],
-                'success_url' => FrontendPagoUrl::exitoStripe(),
+                'success_url' => $successUrl,
                 'cancel_url' => FrontendPagoUrl::canceladoStripe(),
-                'metadata' => [
-                    'pago_id' => (string) $pago->id,
-                    'servicio_id' => (string) $servicio->id,
-                ],
+                'metadata' => $metadata,
             ]);
         } catch (ApiErrorException $e) {
             $pago->estado = Pago::ESTADO_CANCELLED;
@@ -120,6 +132,7 @@ class PagoController extends Controller
     {
         $data = $request->validate([
             'servicio_id' => ['required', 'integer', 'exists:servicios,id'],
+            'solicitud_cita_id' => ['nullable', 'integer', 'exists:solicitudes_citas,id'],
             'cliente_nombre' => ['required', 'string', 'max:120'],
             'cliente_email' => ['required', 'email', 'max:160'],
             'cliente_telefono' => ['nullable', 'string', 'max:40'],
@@ -141,6 +154,7 @@ class PagoController extends Controller
 
         $pago = Pago::query()->create([
             'servicio_id' => $servicio->id,
+            'solicitud_cita_id' => $data['solicitud_cita_id'] ?? null,
             'cliente_nombre' => $data['cliente_nombre'],
             'cliente_email' => $data['cliente_email'],
             'cliente_telefono' => $data['cliente_telefono'] ?? null,
@@ -152,10 +166,17 @@ class PagoController extends Controller
             'notas' => $data['notas'] ?? null,
         ]);
 
+        $pago->sincronizarEstadoSolicitudCita();
+
+        $redirectUrl = ($pago->solicitud_cita_id !== null)
+            ? FrontendPagoUrl::exitoCitaManual((int) $pago->solicitud_cita_id, $pago->id)
+            : FrontendPagoUrl::registradoManual($pago->id);
+
         return response()->json([
             'ok' => true,
             'pago_id' => $pago->id,
-            'redirect_url' => FrontendPagoUrl::registradoManual($pago->id),
+            'solicitud_cita_id' => $pago->solicitud_cita_id,
+            'redirect_url' => $redirectUrl,
             'message' => 'Solicitud registrada. La clínica confirmará tu pago al validar el comprobante.',
         ], 201);
     }
@@ -226,6 +247,7 @@ class PagoController extends Controller
             'metodo' => $pago->metodo,
             'monto' => $pago->monto,
             'moneda' => $pago->moneda,
+            'solicitud_cita_id' => $pago->solicitud_cita_id,
             'cliente_nombre' => $pago->cliente_nombre,
             'cliente_email' => $pago->cliente_email,
             'referencia_manual' => $pago->referencia_manual,

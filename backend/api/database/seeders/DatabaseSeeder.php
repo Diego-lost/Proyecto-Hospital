@@ -21,5 +21,8 @@ class DatabaseSeeder extends Seeder
                 'email_verified_at' => now(),
             ],
         );
+
+        $this->call(CatalogoClinicaSeeder::class);
+        $this->call(AmbulanciaSeeder::class);
     }
 }

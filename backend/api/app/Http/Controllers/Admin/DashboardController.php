@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Ambulancia;
 use App\Models\Especialidad;
 use App\Models\Medico;
 use App\Models\Servicio;
@@ -23,6 +24,8 @@ class DashboardController extends Controller
         $solicitudesHoy = 0;
         $solicitudesPorEstado = new Collection;
         $proximasCitas = new Collection;
+        $ambulanciasStats = ['disponibles' => 0, 'en_ruta' => 0, 'total' => 0];
+        $ambulanciasEnRuta = new Collection;
 
         try {
             $catalogo = [
@@ -53,6 +56,18 @@ class DashboardController extends Controller
                 ->orderBy('hora')
                 ->limit(8)
                 ->get();
+
+            $ambulanciasStats = [
+                'disponibles' => Ambulancia::query()->where('estado', Ambulancia::ESTADO_DISPONIBLE)->count(),
+                'en_ruta' => Ambulancia::query()->where('estado', Ambulancia::ESTADO_EN_RUTA)->count(),
+                'total' => Ambulancia::query()->count(),
+            ];
+
+            $ambulanciasEnRuta = Ambulancia::query()
+                ->where('estado', Ambulancia::ESTADO_EN_RUTA)
+                ->orderByDesc('despachada_at')
+                ->limit(5)
+                ->get();
         } catch (Throwable $e) {
             Log::error('admin.dashboard_db', ['exception' => $e]);
             $dashboardDbError = config('app.debug')
@@ -68,6 +83,8 @@ class DashboardController extends Controller
             'solicitudesPorEstado',
             'proximasCitas',
             'dashboardDbError',
+            'ambulanciasStats',
+            'ambulanciasEnRuta',
         ));
     }
 }

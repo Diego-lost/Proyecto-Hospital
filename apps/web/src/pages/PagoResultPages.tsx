@@ -98,6 +98,7 @@ export function PagoExitoPage() {
 export function PagoRegistradoPage() {
   const [params] = useSearchParams();
   const pagoId = Number(params.get('pago_id') ?? '');
+  const fromCita = params.get('cita') === '1';
   const [estado, setEstado] = useState<'loading' | 'ok' | 'error'>('loading');
   const [detalle, setDetalle] = useState<{
     servicio?: string;
@@ -141,8 +142,12 @@ export function PagoRegistradoPage() {
   return (
     <main id="contenido" className="page-main">
       <PageCover
-        title="Solicitud registrada"
-        subtitle="Hemos recibido tu aviso de pago. La clínica lo validará pronto."
+        title={fromCita ? 'Cita y pago registrados' : 'Solicitud registrada'}
+        subtitle={
+          fromCita
+            ? 'Tu solicitud de cita quedó registrada. La clínica validará tu pago pronto.'
+            : 'Hemos recibido tu aviso de pago. La clínica lo validará pronto.'
+        }
       />
       <section className="section section--after-cover">
         <div className="container" style={{ maxWidth: 560 }}>
@@ -151,7 +156,9 @@ export function PagoRegistradoPage() {
             {estado === 'ok' && (
               <>
                 <p style={{ fontWeight: 800, marginTop: 0 }}>
-                  Tu solicitud de pago quedó registrada con el número #{pagoId}.
+                  {fromCita
+                    ? `Tu cita quedó registrada y tu aviso de pago con el número #${pagoId}.`
+                    : `Tu solicitud de pago quedó registrada con el número #${pagoId}.`}
                 </p>
                 {detalle.servicio && (
                   <p className="muted">

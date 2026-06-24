@@ -92,4 +92,45 @@ class AuthLoginTest extends TestCase
 
         $this->assertGuest();
     }
+
+    public function test_api_login_devuelve_token_sin_sesion(): void
+    {
+        $admin = User::factory()->admin()->verified()->create([
+            'email' => 'spa@local.test',
+            'password' => 'password',
+        ]);
+
+        $response = $this->withHeaders(['Origin' => 'http://127.0.0.1:5173'])
+            ->postJson(route('api.auth.login'), [
+            'email' => $admin->email,
+            'password' => 'password',
+        ]);
+
+        $response->assertOk()
+            ->assertJsonStructure(['user', 'redirect_url', 'token']);
+
+        $redirect = (string) $response->json('redirect_url');
+        $this->assertStringContainsString('/auth/spa-enter', $redirect);
+        $this->assertStringContainsString('redirect=', $redirect);
+
+        $this->assertGuest();
+    }
+
+    public function test_spa_enter_crea_sesion_y_redirige_admin_al_panel(): void
+    {
+        $admin = User::factory()->admin()->verified()->create([
+            'email' => 'spa-enter@local.test',
+            'password' => 'password',
+        ]);
+
+        $token = \App\Support\SpaAuthToken::issue($admin);
+
+        $response = $this->get(route('auth.spa-enter', [
+            'token' => $token,
+            'redirect' => '/admin',
+        ]));
+
+        $response->assertRedirect(route('admin.dashboard'));
+        $this->assertAuthenticatedAs($admin);
+    }
 }

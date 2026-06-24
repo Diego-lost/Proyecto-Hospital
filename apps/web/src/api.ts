@@ -69,7 +69,7 @@ export async function apiJson<T>(path: string, init?: RequestInit): Promise<T> {
   const base = apiBase();
   if (base === '') {
     throw new Error(
-      'No se pudo deducir la URL de la API. Define VITE_API_BASE_URL en apps/web/.env (raíz public de Laravel, sin /api al final) o abre el sitio desde …/public/clinica/ bajo el mismo host que la API.',
+      'No pudimos conectar con el servicio en este momento. Inténtalo de nuevo en unos minutos.',
     );
   }
 
@@ -94,16 +94,16 @@ export async function apiJson<T>(path: string, init?: RequestInit): Promise<T> {
   if (!ct.includes('application/json')) {
     const hint =
       res.status === 200 && bodyText.trimStart().startsWith('<')
-        ? ' La respuesta es HTML (no JSON): suele pasar si VITE_API_BASE_URL apunta a otro servidor que el que tiene tus datos (p. ej. :8000 con SQLite vacío vs XAMPP con MySQL).'
+        ? ' Intenta recargar la página. Si el problema continúa, contáctanos.'
         : '';
-    throw new Error(`Respuesta no JSON (${res.status}) desde ${url}.${hint}`);
+    throw new Error(`No pudimos obtener una respuesta válida del servicio.${hint}`);
   }
 
   let parsed: unknown;
   try {
     parsed = JSON.parse(bodyText) as unknown;
   } catch {
-    throw new Error(`JSON inválido (${res.status}) desde ${url}`);
+    throw new Error('Respuesta inesperada del servicio. Inténtalo de nuevo.');
   }
 
   if (!res.ok) {
@@ -138,5 +138,5 @@ function formatApiJsonError(parsed: unknown, bodyText: string, status: number): 
     }
   }
 
-  return bodyText.trim() !== '' ? bodyText : `HTTP ${status}`;
+  return bodyText.trim() !== '' ? bodyText : 'No se pudo completar la operación. Inténtalo de nuevo.';
 }

@@ -19,6 +19,17 @@ final class FrontendPagoUrl
         return self::hashRoute('pago/exito?session_id={CHECKOUT_SESSION_ID}');
     }
 
+    /** Tras pago de cita: inicio con comprobante descargable. */
+    public static function exitoCitaStripe(int $solicitudId): string
+    {
+        return self::hashRoute('?cita_ok=1&solicitud_id='.$solicitudId.'&session_id={CHECKOUT_SESSION_ID}');
+    }
+
+    public static function exitoCitaManual(int $solicitudId, int $pagoId): string
+    {
+        return self::hashRoute('?cita_ok=1&solicitud_id='.$solicitudId.'&pago_id='.$pagoId);
+    }
+
     public static function canceladoStripe(): string
     {
         return self::hashRoute('pago/cancelado');

@@ -9,9 +9,34 @@ class EspecialidadController extends Controller
 {
     public function index()
     {
-        return Especialidad::query()
+        $rows = Especialidad::query()
             ->orderBy('nombre')
             ->get();
+
+        return $this->dedupeByNombre($rows)->values();
+    }
+
+    /**
+     * @param  \Illuminate\Support\Collection<int, Especialidad>  $rows
+     * @return \Illuminate\Support\Collection<int, Especialidad>
+     */
+    private function dedupeByNombre($rows)
+    {
+        $seen = [];
+
+        return $rows
+            ->sortBy('id')
+            ->filter(function (Especialidad $row) use (&$seen) {
+                $key = mb_strtolower(trim($row->nombre));
+                if (isset($seen[$key])) {
+                    return false;
+                }
+                $seen[$key] = true;
+
+                return true;
+            })
+            ->sortBy('nombre', SORT_NATURAL | SORT_FLAG_CASE)
+            ->values();
     }
 
     public function store(Request $request)
@@ -21,7 +46,19 @@ class EspecialidadController extends Controller
             'imagen' => ['nullable', 'string', 'max:255'],
         ]);
 
-        $especialidad = Especialidad::create($data);
+        $nombre = trim($data['nombre']);
+        $existing = Especialidad::query()
+            ->whereRaw('lower(trim(nombre)) = ?', [mb_strtolower($nombre)])
+            ->first();
+
+        if ($existing) {
+            return response()->json($existing);
+        }
+
+        $especialidad = Especialidad::create([
+            ...$data,
+            'nombre' => $nombre,
+        ]);
 
         return response()->json($especialidad, 201);
     }

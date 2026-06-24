@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class SolicitudCita extends Model
 {
@@ -40,6 +41,11 @@ class SolicitudCita extends Model
     public function medico(): BelongsTo
     {
         return $this->belongsTo(Medico::class);
+    }
+
+    public function pago(): HasOne
+    {
+        return $this->hasOne(Pago::class, 'solicitud_cita_id')->latestOfMany();
     }
 }
 

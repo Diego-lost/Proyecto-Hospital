@@ -51,4 +51,24 @@ return [
         'currency' => strtolower((string) env('STRIPE_CURRENCY', 'pen')),
     ],
 
+    /*
+    | Google Maps — Directions API (despacho de ambulancias en el panel admin).
+    */
+    'google_maps' => [
+        'key' => env('GOOGLE_MAPS_API_KEY'),
+        'directions_url' => env('GOOGLE_MAPS_DIRECTIONS_URL', 'https://maps.googleapis.com/maps/api/directions/json'),
+        'origin_lat' => (float) env('CLINIC_ORIGIN_LAT', -12.0653),
+        'origin_lng' => (float) env('CLINIC_ORIGIN_LNG', -75.2046),
+        'origin_city' => env('CLINIC_ORIGIN_CITY', 'Huancayo'),
+        'origin_address' => env('CLINIC_ORIGIN_ADDRESS', 'Av. Giráldez, Huancayo'),
+        'timeout' => (int) env('GOOGLE_MAPS_TIMEOUT', 20),
+        // En local permite despachar aunque Directions API falle (clave sin habilitar, etc.).
+        'dispatch_without_route' => filter_var(
+            env('GOOGLE_MAPS_DISPATCH_WITHOUT_ROUTE', env('APP_ENV', 'production') === 'local'),
+            FILTER_VALIDATE_BOOL
+        ),
+        'osrm_fallback' => filter_var(env('GOOGLE_MAPS_OSRM_FALLBACK', true), FILTER_VALIDATE_BOOL),
+        'osrm_url' => env('GOOGLE_MAPS_OSRM_URL', 'https://router.project-osrm.org'),
+    ],
+
 ];

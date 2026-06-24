@@ -1,5 +1,6 @@
 import { apiJson, isViteApiBaseConfigured } from '../api';
 import type { EspecialidadRow, MedicoRow, ServicioRow } from '../types/catalogRows';
+import { dedupeEspecialidades } from './catalogUtils';
 import { getSupabase } from './supabaseClient';
 
 function singleRel<T>(v: T | T[] | null | undefined): T | null {
@@ -32,9 +33,9 @@ export async function fetchEspecialidades(): Promise<EspecialidadRow[]> {
     if (error) {
       throw new Error(error.message);
     }
-    return (data ?? []) as EspecialidadRow[];
+    return dedupeEspecialidades((data ?? []) as EspecialidadRow[]);
   }
-  return apiJson<EspecialidadRow[]>('/api/especialidades');
+  return dedupeEspecialidades(await apiJson<EspecialidadRow[]>('/api/especialidades'));
 }
 
 export async function fetchMedicos(): Promise<MedicoRow[]> {
@@ -62,11 +63,15 @@ export async function fetchMedicos(): Promise<MedicoRow[]> {
 }
 
 /** Servicios para la pasarela: siempre desde Laravel (mismo origen que Stripe checkout). */
-export async function fetchServiciosForPago(): Promise<ServicioRow[]> {
+export async function fetchServiciosForPago(medicoId?: number): Promise<ServicioRow[]> {
   if (!isViteApiBaseConfigured()) {
-    throw new Error('Configura VITE_API_BASE_URL para cargar servicios a pagar.');
+    throw new Error('El pago en línea no está disponible en este momento. Inténtalo más tarde o acude a recepción.');
   }
-  return apiJson<ServicioRow[]>('/api/servicios');
+  const q =
+    medicoId != null && Number.isFinite(medicoId)
+      ? `?medico_id=${encodeURIComponent(String(medicoId))}`
+      : '';
+  return apiJson<ServicioRow[]>(`/api/servicios${q}`);
 }
 
 export async function fetchServicios(): Promise<ServicioRow[]> {
@@ -154,7 +159,7 @@ export type TriageDolorResult = {
 
 export async function evaluarDolorConIa(payload: TriageDolorPayload): Promise<TriageDolorResult> {
   if (!isViteApiBaseConfigured()) {
-    throw new Error('Configura VITE_API_BASE_URL para usar el triaje IA.');
+    throw new Error('El asistente de orientación no está disponible en este momento. Si tienes molestias graves, acude a urgencias.');
   }
 
   const res = await apiJson<{ ok: boolean; triage: TriageDolorResult }>('/api/ai/triage-dolor', {
@@ -166,7 +171,7 @@ export async function evaluarDolorConIa(payload: TriageDolorPayload): Promise<Tr
 
 export async function consultarAsistenteMedico(mensaje: string): Promise<TriageDolorResult> {
   if (!isViteApiBaseConfigured()) {
-    throw new Error('Configura VITE_API_BASE_URL para usar el asistente médico.');
+    throw new Error('El asistente médico no está disponible en este momento. Si tienes molestias graves, acude a urgencias.');
   }
 
   const res = await apiJson<{ ok: boolean; consulta: TriageDolorResult }>('/api/ai/consulta', {
@@ -176,11 +181,11 @@ export async function consultarAsistenteMedico(mensaje: string): Promise<TriageD
   return res.consulta;
 }
 
-export async function submitSolicitudCita(payload: SolicitudCitaPayload): Promise<void> {
+export async function submitSolicitudCita(payload: SolicitudCitaPayload): Promise<number> {
   // Misma base de datos que el panel: Laravel valida y escribe con la conexión de servidor.
   // El insert directo con anon + RLS en Supabase suele fallar aunque el catálogo sí lea por Supabase.
   if (isViteApiBaseConfigured()) {
-    await apiJson<{ ok: boolean }>('/api/solicitudes-citas', {
+    const res = await apiJson<{ ok: boolean; solicitud: { id: number } }>('/api/solicitudes-citas', {
       method: 'POST',
       body: JSON.stringify({
         nombre: payload.nombre,
@@ -199,36 +204,40 @@ export async function submitSolicitudCita(payload: SolicitudCitaPayload): Promis
         origen: payload.origen ?? 'react',
       }),
     });
-    return;
+    return res.solicitud.id;
   }
 
   const sb = getSupabase();
   if (sb) {
-    const { error } = await sb.from('solicitudes_citas').insert({
-      nombre: payload.nombre,
-      paciente_dni: payload.paciente_dni,
-      paciente_direccion: payload.paciente_direccion,
-      telefono: payload.telefono,
-      email: payload.email ?? null,
-      especialidad: payload.especialidad ?? null,
-      medico_id: payload.medico_id ?? null,
-      fecha: payload.fecha ?? null,
-      hora: payload.hora ?? null,
-      motivo: payload.motivo ?? null,
-      triage_riesgo: payload.triage_riesgo ?? null,
-      triage_accion: payload.triage_accion ?? null,
-      triage_resumen: mergeTriageResumen(payload),
-      origen: payload.origen ?? 'react',
-      estado: 'nueva',
-    });
+    const { data, error } = await sb
+      .from('solicitudes_citas')
+      .insert({
+        nombre: payload.nombre,
+        paciente_dni: payload.paciente_dni,
+        paciente_direccion: payload.paciente_direccion,
+        telefono: payload.telefono,
+        email: payload.email ?? null,
+        especialidad: payload.especialidad ?? null,
+        medico_id: payload.medico_id ?? null,
+        fecha: payload.fecha ?? null,
+        hora: payload.hora ?? null,
+        motivo: payload.motivo ?? null,
+        triage_riesgo: payload.triage_riesgo ?? null,
+        triage_accion: payload.triage_accion ?? null,
+        triage_resumen: mergeTriageResumen(payload),
+        origen: payload.origen ?? 'react',
+        estado: 'nueva',
+      })
+      .select('id')
+      .single();
     if (error) {
       throw new Error(error.message);
     }
-    return;
+    return Number(data?.id ?? 0);
   }
 
   throw new Error(
-    'Configura VITE_API_BASE_URL (recomendado) o Supabase (URL + anon + VITE_USE_SUPABASE) para enviar la solicitud.',
+    'No se pudo registrar tu solicitud en este momento. Inténtalo de nuevo o contáctanos por teléfono.',
   );
 }
 

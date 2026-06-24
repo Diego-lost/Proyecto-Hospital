@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Support\AuthRedirect;
+use App\Support\CrossOriginSpa;
+use App\Support\SpaAuthToken;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -46,7 +48,7 @@ class ResetPasswordController extends Controller
         );
 
         if ($status !== Password::PASSWORD_RESET) {
-            if ($request->wantsJson()) {
+            if ($this->shouldRespondJson($request)) {
                 return response()->json([
                     'message' => __($status),
                 ], 422);
@@ -56,18 +58,39 @@ class ResetPasswordController extends Controller
         }
 
         $user = User::query()->where('email', $validated['email'])->firstOrFail();
+
+        if ($this->shouldRespondJson($request)) {
+            $spaToken = null;
+            if (CrossOriginSpa::usesStatelessAuth($request)) {
+                $spaToken = SpaAuthToken::issue($user);
+            }
+
+            $payload = [
+                'message' => 'Contraseña actualizada correctamente.',
+                'user' => AuthRedirect::userPayload($user),
+                'redirect_url' => AuthRedirect::forUser($user, $spaToken),
+            ];
+
+            if ($spaToken !== null) {
+                $payload['token'] = $spaToken;
+            } else {
+                Auth::login($user);
+                $request->session()->regenerate();
+            }
+
+            return response()->json($payload);
+        }
+
         Auth::login($user);
         $request->session()->regenerate();
 
-        if ($request->wantsJson()) {
-            return response()->json([
-                'message' => 'Contraseña actualizada correctamente.',
-                'user' => AuthRedirect::userPayload($user),
-                'redirect_url' => AuthRedirect::forUser($user),
-            ]);
-        }
-
         return redirect()->to(AuthRedirect::forUser($user))
             ->with('status', 'Contraseña actualizada correctamente.');
+    }
+
+    private function shouldRespondJson(Request $request): bool
+    {
+        return $request->wantsJson()
+            || str_contains((string) $request->header('Content-Type', ''), 'application/json');
     }
 }

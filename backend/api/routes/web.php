@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\URL;
 use App\Models\Especialidad;
 use App\Support\FrontendPublicUrl;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\AdminAmbulanciaController;
 use App\Http\Controllers\Admin\AdminEspecialidadController;
 use App\Http\Controllers\Admin\AdminMedicoController;
 use App\Http\Controllers\Admin\AdminServicioController;
@@ -93,6 +94,10 @@ Route::get('/__nova/php-db-check', function () {
 
 Route::get('/auth/csrf', [AuthController::class, 'csrf'])->name('auth.csrf');
 Route::get('/auth/me', [AuthController::class, 'me'])->name('auth.me');
+Route::get('/auth/spa-enter', [AuthController::class, 'spaEnter'])->name('auth.spa-enter');
+Route::get('/auth/spa-handoff', [AuthController::class, 'spaHandoff'])
+    ->middleware('auth')
+    ->name('auth.spa-handoff');
 
 Route::get('/email/verify/{id}/{hash}', [EmailVerificationController::class, 'verify'])
     ->middleware(['signed', 'throttle:6,1'])
@@ -133,4 +138,13 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
     Route::get('pagos', [AdminPagoController::class, 'index'])->name('pagos.index');
     Route::patch('pagos/{pago}/confirmar', [AdminPagoController::class, 'confirmar'])->name('pagos.confirmar');
+
+    Route::post('ambulancias/preview-ruta', [AdminAmbulanciaController::class, 'previewRuta'])
+        ->name('ambulancias.preview-ruta');
+    Route::post('ambulancias/{ambulancia}/despachar', [AdminAmbulanciaController::class, 'despachar'])
+        ->name('ambulancias.despachar');
+    Route::patch('ambulancias/{ambulancia}/regresar', [AdminAmbulanciaController::class, 'regresar'])
+        ->name('ambulancias.regresar');
+    Route::resource('ambulancias', AdminAmbulanciaController::class)
+        ->parameters(['ambulancias' => 'ambulancia']);
 });

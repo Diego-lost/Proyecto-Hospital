@@ -25,9 +25,10 @@ class AuthRegisterTest extends TestCase
         ]);
 
         $response->assertCreated()
-            ->assertJsonFragment(['pending_verification' => true]);
+            ->assertJsonFragment(['pending_verification' => true])
+            ->assertJsonStructure(['user', 'redirect_url']);
 
-        $this->assertGuest();
+        $this->assertAuthenticated();
         $user = User::query()->where('email', 'maria@local.test')->first();
         $this->assertNotNull($user);
         $this->assertNull($user->email_verified_at);

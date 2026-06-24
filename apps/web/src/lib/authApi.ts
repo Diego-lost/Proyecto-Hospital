@@ -38,7 +38,7 @@ function isCrossOriginApi(): boolean {
 
 function readSpaToken(): string | null {
   try {
-    return sessionStorage.getItem(SPA_TOKEN_KEY);
+    return localStorage.getItem(SPA_TOKEN_KEY) ?? sessionStorage.getItem(SPA_TOKEN_KEY);
   } catch {
     return null;
   }
@@ -47,13 +47,36 @@ function readSpaToken(): string | null {
 function writeSpaToken(token: string | null): void {
   try {
     if (token) {
+      localStorage.setItem(SPA_TOKEN_KEY, token);
       sessionStorage.setItem(SPA_TOKEN_KEY, token);
     } else {
+      localStorage.removeItem(SPA_TOKEN_KEY);
       sessionStorage.removeItem(SPA_TOKEN_KEY);
     }
   } catch {
     // ignore
   }
+}
+
+/** Toma el token que envía el panel admin al abrir «Ver sitio web». */
+export function consumeSpaTokenFromUrl(): boolean {
+  if (typeof window === 'undefined') {
+    return false;
+  }
+
+  const params = new URLSearchParams(window.location.search);
+  const token = params.get('spa_token');
+  if (!token) {
+    return false;
+  }
+
+  writeSpaToken(token);
+  params.delete('spa_token');
+  const query = params.toString();
+  const next = window.location.pathname + (query ? `?${query}` : '') + window.location.hash;
+  window.history.replaceState({}, '', next);
+
+  return true;
 }
 
 async function ensureCsrfToken(): Promise<string> {
@@ -171,6 +194,9 @@ export type RegisterPendingResponse = {
   message: string;
   pending_verification: true;
   email: string;
+  user?: AuthUser;
+  redirect_url?: string;
+  token?: string;
 };
 
 type RegisterResponse = AuthResponse | RegisterPendingResponse;
@@ -187,10 +213,16 @@ export async function register(payload: {
   role: 'user' | 'admin';
 }): Promise<RegisterResponse> {
   csrfToken = null;
-  return authJson<RegisterResponse>('/register', {
+  const result = await authJson<RegisterResponse>('/register', {
     method: 'POST',
     body: JSON.stringify(payload),
   });
+
+  if ('token' in result && result.token) {
+    writeSpaToken(result.token);
+  }
+
+  return result;
 }
 
 export async function resendVerification(email: string): Promise<{ message: string }> {
@@ -240,7 +272,8 @@ export async function resetPassword(payload: {
 
 export function followAuthRedirect(redirectUrl: string): void {
   const adminPath = '/admin';
-  if (redirectUrl.includes(adminPath)) {
+  const spaEnterPath = '/auth/spa-enter';
+  if (redirectUrl.includes(adminPath) || redirectUrl.includes(spaEnterPath)) {
     window.location.href = redirectUrl;
     return;
   }

@@ -6,9 +6,16 @@ use App\Models\User;
 
 final class AuthRedirect
 {
-    public static function forUser(User $user): string
+    public static function forUser(User $user, ?string $spaToken = null): string
     {
         if ($user->isAdmin()) {
+            if ($spaToken !== null && $spaToken !== '') {
+                return route('auth.spa-enter', [
+                    'token' => $spaToken,
+                    'redirect' => '/admin',
+                ]);
+            }
+
             return route('admin.dashboard');
         }
 

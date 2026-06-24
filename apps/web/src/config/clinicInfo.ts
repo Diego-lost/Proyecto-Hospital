@@ -3,7 +3,7 @@ export const CLINIC = {
   phone: '(01) 123-4567',
   phoneTel: '+51011234567',
   email: 'contacto@novasalud.pe',
-  address: 'Av. Principal 123, Lima',
+  address: 'Av. Giráldez, Huancayo, Junín',
   schedule: 'Lunes a sábado, 8:00 – 20:00',
   emergency: 'Emergencia 24/7',
   citaPath: '/cita',

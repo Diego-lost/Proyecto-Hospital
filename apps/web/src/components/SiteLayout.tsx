@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
 import { Link, Outlet } from 'react-router-dom';
-import { Activity, Clock, Mail, MapPin, Menu, Phone, X } from 'lucide-react';
+import { Activity, Clock, LayoutDashboard, Mail, MapPin, Menu, Phone, X } from 'lucide-react';
+import { CLINIC } from '../config/clinicInfo';
 import { portalTransparenciaHref } from '../config/hospitalNav';
 import { useAuth } from '../contexts/AuthContext';
+import { adminPanelUrl } from '../lib/adminUrl';
 import { PortalNavDesktop, PortalNavDrawer } from './PortalNav';
 import AiChatWidget from './AiChatWidget';
 
@@ -25,6 +27,8 @@ export default function SiteLayout() {
   }, [menuOpen]);
 
   const closeMenu = () => setMenuOpen(false);
+  const isAdmin = user?.role === 'admin';
+  const adminUrl = adminPanelUrl();
 
   return (
     <div className="min-h-screen bg-background">
@@ -35,7 +39,7 @@ export default function SiteLayout() {
       <div className="hidden items-center justify-between border-b border-border bg-secondary px-8 py-2 text-xs text-muted-foreground md:flex">
         <div className="flex items-center gap-6">
           <span className="flex items-center gap-1.5">
-            <MapPin size={12} /> Av. Principal 123, Lima
+            <MapPin size={12} /> {CLINIC.address}
           </span>
           <a href="tel:+51011234567" className="flex items-center gap-1.5 transition-colors hover:text-foreground">
             <Phone size={12} /> (01) 123-4567
@@ -59,6 +63,18 @@ export default function SiteLayout() {
           )}
           {!loading && user && (
             <>
+              {isAdmin && (
+                <>
+                  <a
+                    href={adminUrl}
+                    className="inline-flex items-center gap-1 font-medium text-primary transition-colors hover:text-accent"
+                  >
+                    <LayoutDashboard size={13} aria-hidden />
+                    Panel de gestión
+                  </a>
+                  <span className="text-border">|</span>
+                </>
+              )}
               <span className="max-w-[160px] truncate" title={user.email}>
                 {user.name}
               </span>
@@ -137,7 +153,18 @@ export default function SiteLayout() {
                 </div>
               )}
               {!loading && user && (
-                <button
+                <>
+                  {isAdmin && (
+                    <a
+                      href={adminUrl}
+                      className="flex w-full items-center justify-center gap-2 rounded-lg border border-primary/20 bg-primary/5 py-2.5 text-center text-sm font-medium text-primary"
+                      onClick={closeMenu}
+                    >
+                      <LayoutDashboard size={16} aria-hidden />
+                      Panel de gestión
+                    </a>
+                  )}
+                  <button
                   type="button"
                   onClick={() => {
                     closeMenu();
@@ -147,6 +174,7 @@ export default function SiteLayout() {
                 >
                   Cerrar sesión ({user.name})
                 </button>
+                </>
               )}
               <div className="flex gap-3">
               <Link to="/pagar" className="flex-1 rounded-lg border border-border py-2.5 text-center text-sm font-medium text-primary" onClick={closeMenu}>
@@ -201,7 +229,7 @@ export default function SiteLayout() {
                   <Mail size={13} className="text-accent" /> contacto@novasalud.pe
                 </a>
                 <p className="flex items-start gap-2 text-sm text-white/55">
-                  <MapPin size={13} className="mt-0.5 shrink-0 text-accent" /> Av. Principal 123, Lima
+                  <MapPin size={13} className="mt-0.5 shrink-0 text-accent" /> {CLINIC.address}
                 </p>
               </div>
             </div>

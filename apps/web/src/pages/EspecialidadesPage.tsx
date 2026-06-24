@@ -6,7 +6,7 @@ export default function EspecialidadesPage() {
     <main id="contenido" className="page-main">
       <PageCover
         title="Especialidades"
-        subtitle="Catálogo en vivo desde Laravel. Los cambios en el administrador se reflejan al recargar."
+        subtitle="Consulta nuestras especialidades y agenda la atención que necesitas."
       />
       <section className="section section--after-cover">
         <div className="container">

@@ -15,14 +15,14 @@ class CrossOriginSpa
             return false;
         }
 
-        $frontendHost = parse_url($frontend, PHP_URL_HOST);
-        $appHost = parse_url($appUrl, PHP_URL_HOST);
+        $frontendOrigin = self::originFromUrl($frontend);
+        $appOrigin = self::originFromUrl($appUrl);
 
-        if (! is_string($frontendHost) || ! is_string($appHost)) {
+        if ($frontendOrigin === null || $appOrigin === null) {
             return false;
         }
 
-        if (strcasecmp($frontendHost, $appHost) === 0) {
+        if (strcasecmp($frontendOrigin, $appOrigin) === 0) {
             return false;
         }
 
@@ -32,5 +32,40 @@ class CrossOriginSpa
         }
 
         return rtrim($origin, '/') === $frontend;
+    }
+
+    private static function originFromUrl(string $url): ?string
+    {
+        $parts = parse_url($url);
+        if (! is_array($parts) || ! isset($parts['host'])) {
+            return null;
+        }
+
+        $scheme = (string) ($parts['scheme'] ?? 'http');
+        $host = (string) $parts['host'];
+        $port = isset($parts['port']) ? (int) $parts['port'] : null;
+        $defaultPort = $scheme === 'https' ? 443 : 80;
+
+        if ($port === null || $port === $defaultPort) {
+            return $scheme.'://'.$host;
+        }
+
+        return $scheme.'://'.$host.':'.$port;
+    }
+
+    /**
+     * Auth por token (sin cookies) en rutas API o cuando el front está en otro origen.
+     */
+    public static function usesStatelessAuth(Request $request): bool
+    {
+        if (self::isRequest($request)) {
+            return true;
+        }
+
+        if ($request->is('api/auth/*')) {
+            return true;
+        }
+
+        return ! $request->hasSession();
     }
 }

@@ -68,6 +68,12 @@ services:
         sync: false
       - key: PERU_API_KEY
         sync: false
+      - key: GOOGLE_MAPS_API_KEY
+        sync: false
+      - key: CLINIC_ORIGIN_LAT
+        value: "-12.0464"
+      - key: CLINIC_ORIGIN_LNG
+        value: "-77.0428"
       - key: STRIPE_SECRET
         sync: false
       - key: STRIPE_PUBLIC_KEY

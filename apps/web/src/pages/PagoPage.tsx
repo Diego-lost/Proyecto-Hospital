@@ -86,7 +86,7 @@ export default function PagoPage() {
     setErr(null);
     try {
       if (!isViteApiBaseConfigured()) {
-        setErr('Configura VITE_API_BASE_URL para pagar en línea.');
+        setErr('El pago en línea no está disponible en este momento. Inténtalo más tarde o paga en recepción.');
         return;
       }
       const [list, cfg] = await Promise.all([fetchServiciosForPago(), fetchPagoConfig()]);

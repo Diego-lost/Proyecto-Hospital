@@ -1,12 +1,13 @@
-import { Calendar, Check, Stethoscope, User } from 'lucide-react';
+import { Calendar, Check, CreditCard, Stethoscope, User } from 'lucide-react';
 
-export type CitaWizardStep = 'paciente' | 'especialidad' | 'horario' | 'confirmar';
+export type CitaWizardStep = 'paciente' | 'especialidad' | 'horario' | 'confirmar' | 'pago';
 
 const STEPS: { id: CitaWizardStep; label: string; icon: typeof User }[] = [
   { id: 'paciente', label: 'Paciente', icon: User },
   { id: 'especialidad', label: 'Especialidad', icon: Stethoscope },
   { id: 'horario', label: 'Horario', icon: Calendar },
   { id: 'confirmar', label: 'Confirmar', icon: Check },
+  { id: 'pago', label: 'Pago', icon: CreditCard },
 ];
 
 export function stepIndex(step: CitaWizardStep): number {
@@ -77,6 +78,8 @@ export function stepTitle(step: CitaWizardStep): string {
       return 'Horario preferido';
     case 'confirmar':
       return 'Confirmar solicitud';
+    case 'pago':
+      return 'Pago de la consulta';
   }
 }
 
@@ -90,5 +93,7 @@ export function stepIcon(step: CitaWizardStep) {
       return Calendar;
     case 'confirmar':
       return Check;
+    case 'pago':
+      return CreditCard;
   }
 }

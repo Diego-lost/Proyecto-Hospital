@@ -41,15 +41,11 @@ export type PagoConfig = {
 
 
 export type CheckoutPayload = {
-
   servicio_id: number;
-
+  solicitud_cita_id?: number;
   cliente_nombre: string;
-
   cliente_email: string;
-
   cliente_telefono?: string;
-
 };
 
 
@@ -111,7 +107,7 @@ export type PagoDetalle = {
   referencia_manual?: string | null;
 
   servicio?: { nombre?: string } | null;
-
+  solicitud_cita_id?: number | null;
   paid_at?: string | null;
 
 };

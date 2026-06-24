@@ -21,7 +21,7 @@ class EnsureFrontendOrigin
             return $next($request);
         }
 
-        if ($origin === null && app()->environment('local')) {
+        if ($origin === null && app()->environment(['local', 'testing'])) {
             return $next($request);
         }
 

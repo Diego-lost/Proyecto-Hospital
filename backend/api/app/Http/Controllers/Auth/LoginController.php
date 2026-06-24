@@ -32,7 +32,7 @@ class LoginController extends Controller
 
         $remember = $request->boolean('remember');
 
-        if (CrossOriginSpa::isRequest($request)) {
+        if (CrossOriginSpa::usesStatelessAuth($request)) {
             return $this->storeCrossOriginJson($credentials);
         }
 
@@ -81,16 +81,18 @@ class LoginController extends Controller
             ]);
         }
 
+        $token = SpaAuthToken::issue($user);
+
         return response()->json([
             'user' => AuthRedirect::userPayload($user),
-            'redirect_url' => AuthRedirect::forUser($user),
-            'token' => SpaAuthToken::issue($user),
+            'redirect_url' => AuthRedirect::forUser($user, $token),
+            'token' => $token,
         ]);
     }
 
     public function destroy(Request $request): RedirectResponse|JsonResponse
     {
-        if (CrossOriginSpa::isRequest($request)) {
+        if (CrossOriginSpa::usesStatelessAuth($request)) {
             SpaAuthToken::revoke($request->bearerToken());
 
             if ($request->wantsJson()) {

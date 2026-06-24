@@ -25,7 +25,15 @@ function useCountUp(target: number, duration = 1400, active = false) {
   return count;
 }
 
-export default function StatCounter({ value, label }: { value: number; label: string }) {
+export default function StatCounter({
+  value,
+  label,
+  onDark = false,
+}: {
+  value: number;
+  label: string;
+  onDark?: boolean;
+}) {
   const ref = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(false);
   const count = useCountUp(value, 1400, active);
@@ -42,8 +50,14 @@ export default function StatCounter({ value, label }: { value: number; label: st
 
   return (
     <div ref={ref} className="text-center">
-      <p className="font-display text-5xl font-bold text-accent">{count}</p>
-      <p className="mt-1 text-sm font-medium uppercase tracking-widest text-muted-foreground">{label}</p>
+      <p className={`font-display font-bold ${onDark ? 'text-[#6ECFC8]' : 'text-accent'} ${onDark ? 'text-5xl md:text-6xl' : 'text-5xl'}`}>{count}</p>
+      <p
+        className={`mt-1 text-sm font-medium uppercase tracking-widest ${
+          onDark ? 'text-white/75' : 'text-muted-foreground'
+        }`}
+      >
+        {label}
+      </p>
     </div>
   );
 }

@@ -238,5 +238,40 @@
         <span>Los cambios en el catálogo se reflejan en la web pública al <strong>recargar</strong> la página del sitio NovaSalud (React + API).</span>
       </div>
     </section>
+
+    <section class="card">
+      <h2>Ambulancias</h2>
+      <p class="card-desc">Unidades disponibles y despachadas con ruta Google Maps.</p>
+      <div class="mini-stats">
+        <div class="mini-stat">
+          <div class="num">{{ $ambulanciasStats['disponibles'] }}</div>
+          <div class="lbl">Disponibles</div>
+        </div>
+        <div class="mini-stat">
+          <div class="num">{{ $ambulanciasStats['en_ruta'] }}</div>
+          <div class="lbl">En ruta</div>
+        </div>
+        <div class="mini-stat">
+          <div class="num">{{ $ambulanciasStats['total'] }}</div>
+          <div class="lbl">Total flota</div>
+        </div>
+      </div>
+      @if ($ambulanciasEnRuta->isNotEmpty())
+        <ul class="list-plain" style="margin: 12px 0 0; padding: 0; list-style: none;">
+          @foreach ($ambulanciasEnRuta as $amb)
+            <li style="display:flex; justify-content:space-between; gap:12px; padding:8px 0; border-top:1px solid var(--ns-line);">
+              <div>
+                <strong>{{ $amb->codigo }}</strong>
+                <div class="muted" style="font-size:12px;">{{ $amb->destino_direccion ?? 'Destino en mapa' }}</div>
+              </div>
+              <span class="badge badge--warning">En ruta</span>
+            </li>
+          @endforeach
+        </ul>
+      @else
+        <p class="muted" style="margin-top:10px;">Ninguna ambulancia despachada en este momento.</p>
+      @endif
+      <a class="btn btn-primary btn-block" href="{{ route('admin.ambulancias.index') }}" style="margin-top:14px;">Gestionar ambulancias</a>
+    </section>
   </div>
 @endsection

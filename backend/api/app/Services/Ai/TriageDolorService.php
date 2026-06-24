@@ -192,9 +192,12 @@ Responde SOLO JSON valido con:
   "nivel_riesgo":"bajo|medio|alto",
   "accion_recomendada":"autocuidado|consulta_24h|urgencias",
   "senales_alarma":["..."],
-  "recomendaciones_generales":["maximo 4 puntos, prudentes, no farmacos especificos"],
+  "recomendaciones_generales":["entre 4 y 6 medidas concretas de alivio en casa: frio/calor, estiramiento, postura, elevacion, que evitar y cuando consultar. No uses solo reposo u observar."],
+  "intro":"parrafo breve en espanol con acentos correctos",
+  "posibles_causas":[{"titulo":"...","descripcion":"...","sintomas_coincidentes":["..."]}],
   "motivo_especialidad":"texto corto"
 }
+Responde en espanol de Peru con tildes correctas (á é í ó ú ñ).
 Si dudas o hay riesgo, prioriza seguridad.
 TXT;
 
@@ -379,10 +382,9 @@ TXT;
         }
 
         if ($recs === []) {
-            $recs = [
-                'Mantener reposo relativo y monitorear la evolucion del dolor.',
-                'Si el dolor aumenta o aparecen sintomas nuevos, buscar atencion medica.',
-            ];
+            $recs = $this->buildReliefRecommendations($input);
+        } else {
+            $recs = $this->finalizeRecommendations($recs, $input);
         }
 
         $posiblesCausas = $this->mapDiagnosisItemsToCausas($diagnosisItems);
@@ -390,17 +392,19 @@ TXT;
         return [
             'nivel_riesgo' => $risk,
             'accion_recomendada' => $action,
-            'senales_alarma' => array_values(array_unique($alertSignals)),
+            'senales_alarma' => array_values(array_unique(array_map(fn ($s) => $this->textForUser((string) $s), $alertSignals))),
             'recomendaciones_generales' => $recs,
-            'intro' => $this->buildIntroText($input, $firstDiagnosis),
+            'intro' => $this->textForUser($this->buildIntroText($input, $firstDiagnosis)),
             'posibles_causas' => $posiblesCausas,
-            'motivo_especialidad' => is_string($firstDiagnosis['reasoning'] ?? null)
-                ? Str::limit(trim((string) $firstDiagnosis['reasoning']), 240, '')
-                : (is_string($firstDiagnosis['description'] ?? null)
-                    ? Str::limit(trim((string) $firstDiagnosis['description']), 240, '')
-                    : (is_string($firstDiagnosis['diagnosis'] ?? null)
-                        ? 'Posible '.trim((string) $firstDiagnosis['diagnosis'])
-                        : 'Orientacion basada en descripcion clinica.')),
+            'motivo_especialidad' => $this->textForUser(
+                is_string($firstDiagnosis['reasoning'] ?? null)
+                    ? trim((string) $firstDiagnosis['reasoning'])
+                    : (is_string($firstDiagnosis['description'] ?? null)
+                        ? trim((string) $firstDiagnosis['description'])
+                        : (is_string($firstDiagnosis['diagnosis'] ?? null)
+                            ? 'Posible '.trim((string) $firstDiagnosis['diagnosis'])
+                            : 'Orientación basada en descripción clínica.'))
+            ),
         ];
     }
 
@@ -442,7 +446,7 @@ TXT;
         if ($hardAlert) {
             $risk = 'alto';
             $action = 'urgencias';
-            $alerts[] = 'Posible senal de alarma detectada en sintomas. Acudir a emergencia.';
+            $alerts[] = 'Posible señal de alarma detectada en síntomas. Acudir a emergencia.';
         }
 
         $recs = [];
@@ -460,7 +464,9 @@ TXT;
             }
         }
         if ($recs === []) {
-            $recs = ['Mantener reposo relativo y observar evolucion de sintomas.', 'Si el dolor aumenta o aparecen nuevos sintomas, buscar atencion medica.'];
+            $recs = $this->buildReliefRecommendations($input);
+        } else {
+            $recs = $this->finalizeRecommendations($recs, $input);
         }
 
         $specialty = $this->especialidadService->inferEspecialidadDesdeTexto((string) ($input['motivo'] ?? ''));
@@ -468,16 +474,16 @@ TXT;
         return [
             'nivel_riesgo' => $risk,
             'accion_recomendada' => $action,
-            'senales_alarma' => array_values(array_unique($alerts)),
+            'senales_alarma' => array_values(array_unique(array_map(fn ($s) => $this->textForUser((string) $s), $alerts))),
             'recomendaciones_generales' => $recs,
-            'intro' => Str::limit((string) ($decoded['intro'] ?? $this->buildIntroText($input, null)), 600, ''),
+            'intro' => $this->textForUser(Str::limit((string) ($decoded['intro'] ?? $this->buildIntroText($input, null)), 600, '')),
             'posibles_causas' => is_array($decoded['posibles_causas'] ?? null)
                 ? $this->sanitizePosiblesCausas($decoded['posibles_causas'])
                 : [],
             'especialidad_sugerida' => $specialty['nombre'] ?? null,
             'especialidad_id' => $specialty['especialidad_id'] ?? null,
-            'motivo_especialidad' => Str::limit((string) ($decoded['motivo_especialidad'] ?? 'Orientacion por sintomas reportados.'), 240, ''),
-            'disclaimer_peru' => 'Orientacion informativa. No reemplaza evaluacion medica presencial. Si hay empeoramiento o senales de alarma, acuda a emergencia.',
+            'motivo_especialidad' => $this->textForUser(Str::limit((string) ($decoded['motivo_especialidad'] ?? 'Orientación por síntomas reportados.'), 240, '')),
+            'disclaimer_peru' => 'Orientación informativa. No reemplaza evaluación médica presencial. Si hay empeoramiento o señales de alarma, acuda a emergencia.',
         ];
     }
 
@@ -512,10 +518,136 @@ TXT;
 
     private function sanitizeRecommendation(string $text): string
     {
-        $x = trim($text);
-        $x = preg_replace('/\b(ibuprofeno|paracetamol|diclofenaco|naproxeno|amoxicilina)\b/i', 'medicacion indicada por profesional', $x) ?? $x;
-        $x = preg_replace('/\b(diagnostico|confirmado)\b/i', 'evaluacion clinica', $x) ?? $x;
+        $x = $this->textForUser($text);
+        $x = preg_replace('/\b(ibuprofeno|paracetamol|diclofenaco|naproxeno|amoxicilina)\b/i', 'medicación indicada por profesional', $x) ?? $x;
+        $x = preg_replace('/\b(diagnóstico|diagnostico|confirmado)\b/i', 'evaluación clínica', $x) ?? $x;
+
         return $x;
+    }
+
+    private function textForUser(string $text): string
+    {
+        return Str::limit(trim($this->repairTextEncoding($text)), 520, '');
+    }
+
+    private function repairTextEncoding(string $text): string
+    {
+        $text = trim($text);
+        if ($text === '') {
+            return $text;
+        }
+
+        if (preg_match('/[Ã├â]|├[│║¡®í░▒▓]/u', $text)) {
+            $repaired = @iconv('UTF-8', 'ISO-8859-1//IGNORE', $text);
+            if (is_string($repaired) && $repaired !== '' && mb_check_encoding($repaired, 'UTF-8')
+                && preg_match('/[áéíóúñÁÉÍÓÚÑ]/u', $repaired)) {
+                return $repaired;
+            }
+        }
+
+        $map = [
+            '├│' => 'ó', '├║' => 'ú', '├¡' => 'í', '├®' => 'é', '├í' => 'á', '├▒' => 'ñ',
+            'Ã³' => 'ó', 'Ãº' => 'ú', 'Ã¡' => 'á', 'Ã©' => 'é', 'Ã­' => 'í', 'Ã±' => 'ñ',
+            'Ã“' => 'Ó', 'Ãš' => 'Ú', 'Ã‘' => 'Ñ',
+        ];
+
+        return str_replace(array_keys($map), array_values($map), $text);
+    }
+
+    /**
+     * @param  list<string>  $apiRecs
+     * @param  array<string, mixed>  $input
+     * @return list<string>
+     */
+    private function finalizeRecommendations(array $apiRecs, array $input): array
+    {
+        $localized = $this->buildReliefRecommendations($input);
+        $apiRecs = array_values(array_filter(array_map(fn (string $r): string => $this->sanitizeRecommendation($r), $apiRecs)));
+
+        if ($apiRecs === [] || $this->recommendationsAreGeneric($apiRecs)) {
+            return array_slice($localized, 0, 6);
+        }
+
+        $merged = array_values(array_unique([...array_slice($localized, 0, 3), ...$apiRecs]));
+
+        return array_slice($merged, 0, 6);
+    }
+
+    /**
+     * @param  list<string>  $recs
+     */
+    private function recommendationsAreGeneric(array $recs): bool
+    {
+        foreach ($recs as $rec) {
+            $lower = mb_strtolower($rec);
+            if (! preg_match('/reposo|observar|evoluci[oó]n|atenci[oó]n m[eé]dica|monitorear|consultar/i', $lower)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * @param  array<string, mixed>  $input
+     * @return list<string>
+     */
+    private function buildReliefRecommendations(array $input): array
+    {
+        $text = mb_strtolower($this->buildSymptomsText($input));
+
+        if (preg_match('/\b(pie|pies|tal[oó]n|planta|fascia|tobillo|metatarso)\b/u', $text)) {
+            return [
+                'Eleva el pie sobre un cojín cuando descanses, 15–20 minutos varias veces al día.',
+                'Aplica hielo envuelto en un paño en la zona dolorida, 10–15 minutos (no directo sobre la piel).',
+                'Estira la pantorrilla: con la pierna estirada, acerca los dedos hacia ti usando una toalla.',
+                'Evita caminar descalzo en pisos duros; usa calzado con buen soporte del arco.',
+                'Rueda suavemente una pelota de tenis o botella fría bajo el arco del pie con presión moderada.',
+                'Si el dolor empeora al apoyar o no mejora en 3–5 días, agenda consulta con traumatología o medicina general.',
+            ];
+        }
+
+        if (preg_match('/\b(cabeza|cefalea|migra|sien|nuca)\b/u', $text)) {
+            return [
+                'Descansa en un lugar tranquilo y con poca luz durante 20–30 minutos.',
+                'Mantente hidratado; la deshidratación puede empeorar el dolor de cabeza.',
+                'Coloca una compresa fría en frente o nuca si el dolor es pulsátil o intenso.',
+                'Evita pantallas, cafeína en exceso y saltarte comidas mientras dure el episodio.',
+                'Masajea suavemente sienes y cuello sin forzar movimientos bruscos.',
+                'Consulta si el dolor es el peor de tu vida, hay fiebre, rigidez de cuello o confusión.',
+            ];
+        }
+
+        if (preg_match('/\b(diente|muela|mand[ií]bula|enc[ií]a|boca)\b/u', $text)) {
+            return [
+                'Enjuaga con agua tibia y sal (1/2 cucharadita en un vaso) varias veces al día.',
+                'Evita alimentos muy fríos, calientes o dulces que disparen el dolor.',
+                'Mastica del lado contrario y prefiere alimentos blandos temporalmente.',
+                'Mantén una higiene suave con cepillo de cerdas suaves sin presionar la zona sensible.',
+                'Una compresa fría por fuera de la mejilla puede aliviar inflamación leve.',
+                'Agenda odontología pronto si hay hinchazón, fiebre o dolor que no cede en 24–48 h.',
+            ];
+        }
+
+        if (preg_match('/\b(lumbar|espalda|columna|cuello|cervical)\b/u', $text)) {
+            return [
+                'Evita cargar peso y posturas prolongadas encorvado frente al celular o PC.',
+                'Aplica calor húmedo 15 minutos si sientes tensión muscular; frío si hubo golpe reciente.',
+                'Realiza estiramientos suaves de espalda y cuello solo si no aumentan el dolor.',
+                'Duerme con una almohada que mantenga el cuello alineado con la columna.',
+                'Camina cortos trayectos para no inmovilizar la zona por horas.',
+                'Busca valoración si hay dolor que baja a la pierna, entumecimiento o debilidad.',
+            ];
+        }
+
+        return [
+            'Identifica qué movimientos o posturas empeoran el dolor y evítalos de forma temporal.',
+            'Usa frío 10–15 minutos si hay inflamación reciente; calor húmedo si predomina tensión muscular.',
+            'Mantén hidratación y pausas activas cada hora si el dolor aparece con el esfuerzo.',
+            'Realiza estiramientos suaves solo si no intensifican la molestia.',
+            'Registra intensidad y duración para comentarlo con el médico.',
+            'Consulta presencial si el dolor persiste más de 48–72 h, empeora o aparecen fiebre o debilidad.',
+        ];
     }
 
     private function logFailure(
@@ -570,7 +702,7 @@ TXT;
         }
 
         $context = is_string($firstDiagnosis['description'] ?? null)
-            ? Str::limit(trim((string) $firstDiagnosis['description']), 180, '')
+            ? Str::limit($this->repairTextEncoding(trim((string) $firstDiagnosis['description'])), 180, '')
             : null;
 
         if ($context !== null && $context !== '') {
@@ -591,8 +723,8 @@ TXT;
             if (! is_array($item)) {
                 continue;
             }
-            $titulo = trim((string) ($item['diagnosis'] ?? $item['name'] ?? ''));
-            $descripcion = trim((string) ($item['description'] ?? ''));
+            $titulo = $this->textForUser(trim((string) ($item['diagnosis'] ?? $item['name'] ?? '')));
+            $descripcion = $this->textForUser(trim((string) ($item['description'] ?? '')));
             if ($titulo === '' || $descripcion === '') {
                 continue;
             }
@@ -600,7 +732,7 @@ TXT;
             if (isset($item['symptoms_in_common']) && is_array($item['symptoms_in_common'])) {
                 foreach ($item['symptoms_in_common'] as $s) {
                     if (is_string($s) && trim($s) !== '') {
-                        $sintomas[] = Str::limit(trim($s), 80, '');
+                        $sintomas[] = $this->textForUser(trim($s));
                     }
                 }
             }
@@ -629,8 +761,8 @@ TXT;
             if (! is_array($item)) {
                 continue;
             }
-            $titulo = trim((string) ($item['titulo'] ?? $item['diagnosis'] ?? $item['name'] ?? ''));
-            $descripcion = trim((string) ($item['descripcion'] ?? $item['description'] ?? ''));
+            $titulo = $this->textForUser(trim((string) ($item['titulo'] ?? $item['diagnosis'] ?? $item['name'] ?? '')));
+            $descripcion = $this->textForUser(trim((string) ($item['descripcion'] ?? $item['description'] ?? '')));
             if ($titulo === '' || $descripcion === '') {
                 continue;
             }
@@ -639,7 +771,7 @@ TXT;
             if (is_array($rawSintomas)) {
                 foreach ($rawSintomas as $s) {
                     if (is_string($s) && trim($s) !== '') {
-                        $sintomas[] = Str::limit(trim($s), 80, '');
+                        $sintomas[] = $this->textForUser(trim($s));
                     }
                 }
             }

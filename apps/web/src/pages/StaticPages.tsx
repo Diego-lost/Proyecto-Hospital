@@ -1,14 +1,14 @@
 import { Link } from 'react-router-dom';
 import PageCover from '../components/PageCover';
 import { CatalogMedicos } from '../components/CatalogGrids';
-import { adminPanelUrl } from '../lib/adminUrl';
+import { CLINIC } from '../config/clinicInfo';
 
 export function EquipoPage() {
   return (
     <main id="contenido" className="page-main">
       <PageCover
         title="Equipo médico"
-        subtitle="Profesionales registrados en la base de datos, con su especialidad vinculada."
+        subtitle="Conoce a nuestros especialistas y el área en la que atienden."
       />
       <section className="section section--after-cover">
         <div className="container">
@@ -28,7 +28,7 @@ export function SedesPage() {
           <div className="grid grid--2">
             <article className="location">
               <h3 className="location__title">Sede Central</h3>
-              <p className="location__text">Av. Principal 123, Lima</p>
+              <p className="location__text">{CLINIC.address}</p>
               <ul className="list">
                 <li>
                   <strong>Consultas:</strong> Lun–Sáb 8:00–20:00
@@ -42,8 +42,8 @@ export function SedesPage() {
               </ul>
             </article>
             <article className="location">
-              <h3 className="location__title">Sede Norte</h3>
-              <p className="location__text">Jr. Salud 456, Lima Norte</p>
+              <h3 className="location__title">Sede El Tambo</h3>
+              <p className="location__text">Av. Progreso, El Tambo, Huancayo</p>
               <ul className="list">
                 <li>
                   <strong>Consultas:</strong> Lun–Sáb 9:00–19:00
@@ -186,11 +186,8 @@ export function ManualPage() {
           </article>
 
           <p className="muted" style={{ margin: 0, lineHeight: 1.55 }}>
-            Puede ampliar esta sección con PDF revisados por asesoría legal. Administración técnica:{' '}
-            <a className="card__link" href={adminPanelUrl()}>
-              panel de administración
-            </a>
-            .
+            Puede ampliar esta sección con documentos revisados por asesoría legal. Para solicitar copias
+            oficiales, comuníquese con la institución.
           </p>
         </div>
       </section>
@@ -232,7 +229,7 @@ export function ContactoPage() {
               </h2>
               <ul className="list" style={{ margin: 0 }}>
                 <li>
-                  <strong>Dirección principal:</strong> Av. Principal 123, Lima
+                  <strong>Dirección principal:</strong> {CLINIC.address}
                 </li>
                 <li>
                   <strong>Central telefónica:</strong>{' '}

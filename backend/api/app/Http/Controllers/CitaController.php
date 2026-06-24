@@ -69,6 +69,69 @@ class CitaController extends Controller
         ], 201);
     }
 
+    public function comprobante(Request $request, SolicitudCita $solicitud)
+    {
+        $data = $request->validate([
+            'email' => ['nullable', 'email', 'max:160'],
+        ]);
+
+        $email = $data['email'] ?? null;
+        if (is_string($email) && $email !== '' && $solicitud->email !== null) {
+            if (strcasecmp(trim($email), trim((string) $solicitud->email)) !== 0) {
+                return response()->json([
+                    'message' => 'No se encontró el comprobante para los datos indicados.',
+                ], 404);
+            }
+        }
+
+        $solicitud->load([
+            'medico:id,nombre,dni,especialidad_id',
+            'medico.especialidad:id,nombre',
+            'pago.servicio:id,nombre,descripcion,precio',
+        ]);
+
+        $pago = $solicitud->pago;
+        $servicio = $pago?->servicio;
+        $detallePaciente = is_array($solicitud->triage_resumen)
+            ? ($solicitud->triage_resumen['datos_paciente'] ?? null)
+            : null;
+
+        return response()->json([
+            'comprobante' => [
+                'solicitud_id' => $solicitud->id,
+                'estado_cita' => $solicitud->estado,
+                'nombre' => $solicitud->nombre,
+                'paciente_dni' => $solicitud->paciente_dni,
+                'paciente_direccion' => $solicitud->paciente_direccion,
+                'telefono' => $solicitud->telefono,
+                'email' => $solicitud->email,
+                'especialidad' => $solicitud->especialidad,
+                'medico' => $solicitud->medico ? [
+                    'nombre' => $solicitud->medico->nombre,
+                    'especialidad' => $solicitud->medico->especialidad?->nombre,
+                ] : null,
+                'fecha' => $solicitud->fecha,
+                'hora' => $solicitud->hora,
+                'motivo' => $solicitud->motivo,
+                'paciente_detalle' => $detallePaciente,
+                'pago' => $pago ? [
+                    'id' => $pago->id,
+                    'estado' => $pago->estado,
+                    'metodo' => $pago->metodo,
+                    'monto' => $pago->monto,
+                    'moneda' => $pago->moneda,
+                    'referencia_manual' => $pago->referencia_manual,
+                    'paid_at' => $pago->paid_at?->toIso8601String(),
+                ] : null,
+                'servicio' => $servicio ? [
+                    'nombre' => $servicio->nombre,
+                    'descripcion' => $servicio->descripcion,
+                    'precio' => $servicio->precio,
+                ] : null,
+            ],
+        ]);
+    }
+
     public function cancelar(Request $request, SolicitudCita $solicitud)
     {
         if ($solicitud->estado === 'cancelada') {

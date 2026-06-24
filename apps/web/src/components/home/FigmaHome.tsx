@@ -3,28 +3,20 @@ import { Link } from 'react-router-dom';
 import {
   AlertCircle,
   ArrowRight,
-  Baby,
-  Bone,
-  Brain,
-  Building2,
   Calendar,
   CheckCircle,
   ChevronRight,
   CreditCard,
-  Eye,
-  FileText,
-  Heart,
   Shield,
   Star,
-  Stethoscope,
   Users,
-  type LucideIcon,
 } from 'lucide-react';
 import StatCounter from '../ui/StatCounter';
+import SectionOverlay from './SectionOverlay';
+import { HOME_SECTION_IMAGES } from './homeImages';
 import { useRefetchWhenTabVisible } from '../../hooks/useRefetchWhenTabVisible';
 import { useSupabaseTablesReload } from '../../hooks/useSupabaseTablesReload';
-import { adminPanelUrl } from '../../lib/adminUrl';
-import { formatMoney, initials, isHttpUrl } from '../../lib/catalogUtils';
+import { especialidadCardImage, formatMoney, initials, isHttpUrl } from '../../lib/catalogUtils';
 import { fetchEspecialidades, fetchMedicos, fetchServicios } from '../../lib/remoteCatalog';
 import { portalTransparenciaHref } from '../../config/hospitalNav';
 import type { EspecialidadRow, MedicoRow, ServicioRow } from '../../types/catalogRows';
@@ -34,13 +26,6 @@ const FEATURES = [
   { icon: CreditCard, title: 'Pago seguro', desc: 'Tu pago protegido en todo momento' },
   { icon: Users, title: 'Especialistas', desc: 'Catálogo completo al alcance de tu mano' },
   { icon: AlertCircle, title: 'Emergencia 24/7', desc: 'Disponibles cuando más nos necesitas' },
-];
-
-const CATEGORIES = [
-  { number: '01', label: 'CARTERA CLÍNICA', title: 'Especialidades', desc: 'Cardiología, pediatría, traumatología y más', icon: Stethoscope, to: '/especialidades' },
-  { number: '02', label: 'TARIFAS PÚBLICAS', title: 'Servicios', desc: 'Compara y elige según tus necesidades', icon: FileText, to: '/#servicios' },
-  { number: '03', label: 'PROFESIONALES', title: 'Equipo médico', desc: 'Conoce a nuestros especialistas', icon: Users, to: '/equipo' },
-  { number: '04', label: 'DÓNDE ATENDEMOS', title: 'Sedes', desc: 'Horario, dirección y cómo llegar', icon: Building2, to: '/sedes' },
 ];
 
 const ARTICLES = [
@@ -66,22 +51,6 @@ const ARTICLES = [
     to: '/blog',
   },
 ];
-
-const SPEC_ICONS: { keys: string[]; icon: LucideIcon; color: string; bg: string }[] = [
-  { keys: ['cardio', 'coraz'], icon: Heart, color: 'text-rose-500', bg: 'bg-rose-50' },
-  { keys: ['psico', 'mental'], icon: Brain, color: 'text-violet-500', bg: 'bg-violet-50' },
-  { keys: ['trauma', 'ortop'], icon: Bone, color: 'text-amber-500', bg: 'bg-amber-50' },
-  { keys: ['oftal', 'ojo'], icon: Eye, color: 'text-sky-500', bg: 'bg-sky-50' },
-  { keys: ['pediat', 'niñ'], icon: Baby, color: 'text-emerald-500', bg: 'bg-emerald-50' },
-];
-
-function specStyle(name: string) {
-  const n = name.toLowerCase();
-  for (const s of SPEC_ICONS) {
-    if (s.keys.some((k) => n.includes(k))) return s;
-  }
-  return { icon: Stethoscope, color: 'text-teal-600', bg: 'bg-teal-50' };
-}
 
 function useLiveCounts() {
   const [esp, setEsp] = useState(0);
@@ -186,17 +155,17 @@ export function HomeHero() {
 
 export function HomeTrustBar() {
   return (
-    <section className="border-b border-border bg-white">
-      <div className="mx-auto max-w-7xl px-6 py-8">
-        <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
+    <section id="confianza" className="scroll-mt-20 border-b border-border bg-white">
+      <div className="mx-auto max-w-7xl px-6 py-12 md:py-14">
+        <div className="grid grid-cols-2 gap-8 md:grid-cols-4 md:gap-10">
           {FEATURES.map(({ icon: Icon, title, desc }) => (
-            <div key={title} className="flex items-start gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-secondary">
-                <Icon size={18} className="text-accent" />
+            <div key={title} className="flex items-start gap-4">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-secondary md:h-14 md:w-14">
+                <Icon size={22} className="text-accent" />
               </div>
               <div>
-                <p className="text-sm font-semibold text-primary">{title}</p>
-                <p className="mt-0.5 text-xs text-muted-foreground">{desc}</p>
+                <p className="text-base font-semibold text-primary md:text-lg">{title}</p>
+                <p className="mt-1 text-sm text-muted-foreground md:text-base">{desc}</p>
               </div>
             </div>
           ))}
@@ -209,101 +178,94 @@ export function HomeTrustBar() {
 export function HomeStats() {
   const { esp, med, srv } = useLiveCounts();
   return (
-    <section className="bg-white py-16">
-      <div className="mx-auto mb-10 max-w-7xl px-6 text-center">
-        <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-accent">EN VIVO DESDE EL SISTEMA</p>
-        <h2 className="font-display text-3xl font-bold text-primary md:text-4xl">Lo que tenemos para ti hoy</h2>
+    <SectionOverlay
+      image={HOME_SECTION_IMAGES.stats}
+      imageAlt="Equipo médico de Clínica NovaSalud"
+    >
+      <div className="mx-auto mb-10 max-w-7xl px-6 text-center md:mb-12">
+        <p className="mb-2 text-sm font-semibold uppercase tracking-widest text-[#6ECFC8] md:text-base">Disponible hoy</p>
+        <h2 className="font-display text-3xl font-bold text-white md:text-5xl">Lo que tenemos para ti hoy</h2>
       </div>
-      <div className="mx-auto grid max-w-3xl grid-cols-3 gap-8 px-6">
-        <StatCounter value={esp} label="Especialidades" />
-        <StatCounter value={med} label="Médicos" />
-        <StatCounter value={srv} label="Servicios" />
+      <div className="mx-auto grid max-w-4xl grid-cols-3 gap-10 px-6 md:gap-12">
+        <StatCounter value={esp} label="Especialidades" onDark />
+        <StatCounter value={med} label="Médicos" onDark />
+        <StatCounter value={srv} label="Servicios" onDark />
       </div>
-    </section>
+    </SectionOverlay>
   );
 }
+
+const ACTION_BANNERS = [
+  {
+    image: HOME_SECTION_IMAGES.appointmentBanner,
+    imageAlt: 'Reserva tu consulta médica en Clínica NovaSalud',
+    title: 'Reserva tu consulta',
+    cta: 'Agendar ahora',
+    to: '/cita',
+  },
+  {
+    image: HOME_SECTION_IMAGES.paymentBanner,
+    imageAlt: 'Pago de servicios médicos en línea',
+    title: 'Paga tus servicios',
+    cta: 'Ir a pagos',
+    to: '/pagar',
+  },
+] as const;
 
 export function HomeActionCards() {
   return (
-    <section id="cita" className="bg-secondary py-16">
-      <div className="mx-auto max-w-7xl px-6">
-        <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-accent">ACCESO RÁPIDO</p>
-        <h2 className="font-display mb-8 text-2xl font-bold text-primary md:text-3xl">Citas y pagos, sin complicaciones</h2>
-        <div className="grid gap-6 md:grid-cols-2">
-          <div className="group relative overflow-hidden rounded-2xl bg-primary p-8 text-white">
-            <span className="mb-4 inline-block rounded-full px-3 py-1 text-xs font-medium" style={{ background: 'rgba(255,255,255,0.15)' }}>
-              AGENDA MÉDICA
+    <section id="cita" className="grid md:grid-cols-2">
+      {ACTION_BANNERS.map(({ image, imageAlt, title, cta, to }) => (
+        <Link
+          key={to}
+          to={to}
+          className="group relative flex min-h-[300px] flex-col justify-end overflow-hidden sm:min-h-[360px] md:min-h-[420px]"
+        >
+          <img
+            src={image}
+            alt={imageAlt}
+            className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+            loading="lazy"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/30 to-black/10" />
+          <div className="relative z-10 px-6 py-10 text-center md:px-10 md:py-12">
+            <h2 className="font-display mb-5 text-2xl font-bold tracking-wide text-white uppercase md:text-3xl lg:text-4xl">
+              {title}
+            </h2>
+            <span className="inline-flex items-center gap-2 rounded-sm bg-[#F5C518] px-5 py-2.5 text-xs font-bold tracking-wide text-primary uppercase transition-colors group-hover:bg-[#ffd84d] md:text-sm">
+              {cta}
+              <ArrowRight size={14} />
             </span>
-            <h3 className="font-display mb-2 text-2xl font-bold">Reserva tu consulta hoy</h3>
-            <p className="mb-6 text-sm text-white/70">Completa tus datos y te contactamos para confirmar horario.</p>
-            <Link to="/cita" className="inline-flex items-center gap-2 rounded-xl bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-all hover:opacity-90">
-              Agendar ahora <ArrowRight size={14} />
-            </Link>
           </div>
-          <div className="group relative overflow-hidden rounded-2xl bg-accent p-8 text-white">
-            <span className="mb-4 inline-block rounded-full px-3 py-1 text-xs font-medium" style={{ background: 'rgba(255,255,255,0.2)' }}>
-              FACTURACIÓN EN LÍNEA
-            </span>
-            <h3 className="font-display mb-2 text-2xl font-bold">Paga tu servicio en línea</h3>
-            <p className="mb-6 text-sm text-white/80">Consultas y procedimientos con tarjeta de forma segura.</p>
-            <Link
-              to="/pagar"
-              className="inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold text-white transition-all hover:opacity-90"
-              style={{ background: 'rgba(255,255,255,0.2)' }}
-            >
-              Ir a pagos <ArrowRight size={14} />
-            </Link>
-          </div>
-        </div>
-      </div>
+        </Link>
+      ))}
     </section>
   );
 }
 
-export function HomeExplore() {
-  return (
-    <section id="organizacion" className="bg-white py-16">
-      <div className="mx-auto max-w-7xl px-6">
-        <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-accent">EXPLORA EL SISTEMA</p>
-        <h2 className="font-display mb-8 text-2xl font-bold text-primary md:text-3xl">Encuentra tu próxima atención</h2>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {CATEGORIES.map(({ number, label, title, desc, icon: Icon, to }) => (
-            <Link
-              key={title}
-              to={to}
-              className="group relative rounded-2xl border border-border bg-card p-6 transition-all duration-200 hover:-translate-y-1 hover:shadow-md"
-            >
-              <div className="mb-4 flex items-center justify-between">
-                <span className="font-mono text-xs font-bold text-muted-foreground">{number}</span>
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-secondary transition-colors group-hover:bg-accent/10">
-                  <Icon size={16} className="text-accent" />
-                </div>
-              </div>
-              <p className="mb-1 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">{label}</p>
-              <h3 className="mb-1 text-base font-bold text-primary">{title}</h3>
-              <p className="mb-4 text-xs leading-relaxed text-muted-foreground">{desc}</p>
-              <span className="inline-flex items-center gap-1 text-xs font-semibold text-accent transition-all group-hover:gap-2">
-                Explorar <ChevronRight size={12} />
-              </span>
-            </Link>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function CatalogState({ state, err, label, onRetry }: { state: string; err: string; label: string; onRetry: () => void }) {
+function CatalogState({
+  state,
+  err,
+  label,
+  onRetry,
+  onDark = false,
+}: {
+  state: string;
+  err: string;
+  label: string;
+  onRetry: () => void;
+  onDark?: boolean;
+}) {
   if (state === 'loading') {
-    return <p className="text-center text-sm text-muted-foreground">Cargando {label}…</p>;
+    return <p className={`text-center text-sm ${onDark ? 'text-white/80' : 'text-muted-foreground'}`}>Cargando {label}…</p>;
   }
   if (state === 'empty') {
     return (
       <p className="rounded-2xl border border-border bg-white p-6 text-center text-sm text-muted-foreground">
-        No hay {label} publicados. Créalos en el{' '}
-        <a href={adminPanelUrl()} className="font-semibold text-accent hover:underline">
-          panel de administración
-        </a>
+        No hay {label} publicados por el momento. Vuelve a consultar más tarde o{' '}
+        <Link to="/contacto" className="font-semibold text-accent hover:underline">
+          contáctanos
+        </Link>
         .
       </p>
     );
@@ -350,23 +312,27 @@ export function HomeSpecialties() {
   }, [load]);
 
   return (
-    <section id="especialidades" className="bg-muted py-16">
+    <SectionOverlay
+      id="especialidades"
+      image={HOME_SECTION_IMAGES.specialtiesBanner}
+      imageAlt="Catálogo de especialidades médicas"
+      minHeight="md"
+    >
       <div className="mx-auto max-w-7xl px-6">
         <div className="mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-end">
           <div>
-            <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-accent">CATÁLOGO CLÍNICO</p>
-            <h2 className="font-display text-2xl font-bold text-primary md:text-3xl">Especialidades</h2>
-            <p className="mt-1 text-sm text-muted-foreground">Datos en vivo desde el sistema administrativo</p>
+            <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-[#6ECFC8] md:text-sm">Catálogo clínico</p>
+            <h2 className="font-display text-2xl font-bold text-white md:text-4xl">Especialidades</h2>
+            <p className="mt-2 text-sm text-white/75 md:text-base">Atención por especialidad con profesionales de nuestra clínica</p>
           </div>
-          <Link to="/especialidades" className="inline-flex items-center gap-2 text-sm font-semibold text-accent">
+          <Link to="/especialidades" className="inline-flex items-center gap-2 text-sm font-semibold text-[#6ECFC8]">
             Ver todas <ArrowRight size={14} />
           </Link>
         </div>
-        <CatalogState state={state} err={err} label="especialidades" onRetry={() => void load()} />
+        <CatalogState state={state} err={err} label="especialidades" onRetry={() => void load()} onDark />
         {state === 'ok' && (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {list.map((e) => {
-              const { icon: Icon, color, bg } = specStyle(e.nombre);
               const selected = active === e.id;
               return (
                 <div
@@ -375,20 +341,27 @@ export function HomeSpecialties() {
                   tabIndex={0}
                   onClick={() => setActive(selected ? null : e.id)}
                   onKeyDown={(ev) => ev.key === 'Enter' && setActive(selected ? null : e.id)}
-                  className={`group cursor-pointer rounded-2xl border border-border bg-white p-6 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md ${selected ? 'ring-2 ring-accent' : ''}`}
+                  className={`group cursor-pointer overflow-hidden rounded-2xl border border-border bg-white transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md ${selected ? 'ring-2 ring-accent' : ''}`}
                 >
-                  <div className={`mb-4 flex h-11 w-11 items-center justify-center rounded-xl ${bg}`}>
-                    <Icon size={20} className={color} />
+                  <div className="h-40 overflow-hidden">
+                    <img
+                      src={especialidadCardImage(e)}
+                      alt={e.nombre}
+                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      loading="lazy"
+                    />
                   </div>
-                  <h3 className="mb-1 text-base font-bold text-primary">{e.nombre}</h3>
-                  <p className="mb-4 text-xs leading-relaxed text-muted-foreground">
-                    Consultas y procedimientos bajo cita para especialista.
-                  </p>
-                  <div className="flex items-center justify-between">
-                    <Link to="/cita" className="inline-flex items-center gap-1 text-xs font-semibold text-accent hover:underline" onClick={(ev) => ev.stopPropagation()}>
-                      Consultar <ChevronRight size={11} />
-                    </Link>
-                    <CheckCircle size={14} className={selected ? 'text-accent opacity-100' : 'opacity-0'} />
+                  <div className="p-5">
+                    <h3 className="mb-1 text-base font-bold text-primary">{e.nombre}</h3>
+                    <p className="mb-4 text-xs leading-relaxed text-muted-foreground">
+                      Consultas y procedimientos bajo cita para especialista.
+                    </p>
+                    <div className="flex items-center justify-between">
+                      <Link to="/cita" className="inline-flex items-center gap-1 text-xs font-semibold text-accent hover:underline" onClick={(ev) => ev.stopPropagation()}>
+                        Consultar <ChevronRight size={11} />
+                      </Link>
+                      <CheckCircle size={14} className={selected ? 'text-accent opacity-100' : 'opacity-0'} />
+                    </div>
                   </div>
                 </div>
               );
@@ -396,7 +369,7 @@ export function HomeSpecialties() {
           </div>
         )}
       </div>
-    </section>
+    </SectionOverlay>
   );
 }
 
@@ -529,10 +502,14 @@ export function HomeTeam() {
 
 export function HomeArticles() {
   return (
-    <section className="bg-muted py-16">
+    <SectionOverlay
+      image={HOME_SECTION_IMAGES.articlesBanner}
+      imageAlt="Artículos clínicos y salud"
+      minHeight="md"
+    >
       <div className="mx-auto max-w-7xl px-6">
-        <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-accent">SALUD Y BIENESTAR</p>
-        <h2 className="font-display mb-8 text-2xl font-bold text-primary md:text-3xl">Artículos para ti</h2>
+        <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-[#6ECFC8] md:text-sm">Salud y bienestar</p>
+        <h2 className="font-display mb-8 text-2xl font-bold text-white md:text-4xl">Artículos para ti</h2>
         <div className="grid gap-6 md:grid-cols-3">
           {ARTICLES.map(({ tag, title, desc, image, to }) => (
             <Link key={title} to={to} className="group overflow-hidden rounded-2xl border border-border bg-white transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
@@ -551,7 +528,7 @@ export function HomeArticles() {
           ))}
         </div>
       </div>
-    </section>
+    </SectionOverlay>
   );
 }
 

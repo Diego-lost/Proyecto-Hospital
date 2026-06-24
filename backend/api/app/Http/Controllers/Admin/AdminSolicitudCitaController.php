@@ -11,7 +11,20 @@ class AdminSolicitudCitaController extends Controller
     public function index()
     {
         $solicitudes = SolicitudCita::query()
-            ->with(['medico:id,nombre,dni'])
+            ->with([
+                'medico:id,nombre,dni',
+                'pago' => function ($query) {
+                    $query->select(
+                        'pagos.id',
+                        'pagos.solicitud_cita_id',
+                        'pagos.estado',
+                        'pagos.metodo',
+                        'pagos.monto',
+                        'pagos.moneda',
+                        'pagos.paid_at',
+                    );
+                },
+            ])
             ->orderByDesc('id')
             ->limit(200)
             ->get();

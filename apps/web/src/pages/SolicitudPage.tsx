@@ -1,5 +1,6 @@
-import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Calendar, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
 import { apiJson, isViteApiBaseConfigured } from '../api';
 import AgendarCitaHero from '../components/cita/AgendarCitaHero';
 import DatosPacienteForm, {
@@ -14,6 +15,7 @@ import AgendarCitaStepper, {
   stepIcon,
   stepTitle,
 } from '../components/cita/AgendarCitaStepper';
+import CitaPagoStep, { type CitaPagoRequest } from '../components/cita/CitaPagoStep';
 import { useRefetchWhenTabVisible } from '../hooks/useRefetchWhenTabVisible';
 import { useSupabaseTablesReload } from '../hooks/useSupabaseTablesReload';
 import {
@@ -21,6 +23,7 @@ import {
   fetchMedicos,
   submitSolicitudCita,
 } from '../lib/remoteCatalog';
+import { createCheckoutSession, registrarPagoManual } from '../lib/payments';
 import type { EspecialidadRow, MedicoRow } from '../types/catalogRows';
 
 type ReniecResp = {
@@ -42,15 +45,15 @@ type PacienteResp = {
 };
 
 const RENIEC_DETALLE_MSG: Record<string, string> = {
-  sin_token: 'Falta PERU_API_KEY en el servidor (Perú API).',
+  sin_token: 'La consulta por DNI no está disponible temporalmente. Completa tus datos manualmente.',
   dni_invalido: 'El DNI debe tener 7 u 8 dígitos (solo números).',
   red: 'Error de conexión con el servicio de consulta.',
-  no_autorizado: 'El servicio rechazó la consulta (clave API o plan).',
+  no_autorizado: 'No pudimos validar el DNI en este momento. Completa tus datos manualmente.',
   error_http: 'El servicio respondió con error.',
   sin_datos: 'No hay datos para ese DNI.',
 };
 
-const STEP_ORDER: CitaWizardStep[] = ['paciente', 'especialidad', 'horario', 'confirmar'];
+const STEP_ORDER: CitaWizardStep[] = ['paciente', 'especialidad', 'horario', 'confirmar', 'pago'];
 
 function prevStep(step: CitaWizardStep): CitaWizardStep | null {
   const i = STEP_ORDER.indexOf(step);
@@ -58,6 +61,7 @@ function prevStep(step: CitaWizardStep): CitaWizardStep | null {
 }
 
 export default function SolicitudPage() {
+  const navigate = useNavigate();
   const [step, setStep] = useState<CitaWizardStep>('paciente');
   const [dni, setDni] = useState('');
   const [direccion, setDireccion] = useState('');
@@ -141,7 +145,7 @@ export default function SolicitudPage() {
 
   const autocompletarPorDni = useCallback(async (digits: string) => {
     if (!isViteApiBaseConfigured()) {
-      setErr('Configura VITE_API_BASE_URL para completar nombre y dirección por DNI.');
+      setErr('No pudimos completar tus datos automáticamente por DNI. Ingresa nombre y dirección manualmente.');
       return;
     }
 
@@ -379,6 +383,10 @@ export default function SolicitudPage() {
     }
     if (step === 'horario') {
       setStep('confirmar');
+      return;
+    }
+    if (step === 'confirmar') {
+      setStep('pago');
     }
   }
 
@@ -390,55 +398,92 @@ export default function SolicitudPage() {
     }
   }
 
-  async function onSubmit(e: FormEvent) {
-    e.preventDefault();
+  async function submitSolicitud(): Promise<number> {
     const v = validatePaciente();
     if (v) {
       setErr(v);
       setStep('paciente');
-      return;
+      throw new Error(v);
     }
     const digits = dni.replace(/\D/g, '');
+    return submitSolicitudCita({
+      nombre: nombreCompleto,
+      paciente_dni: digits,
+      paciente_direccion: direccion.trim(),
+      telefono: telefono.trim(),
+      email: email.trim() || undefined,
+      paciente_detalle: pacienteDetalle,
+      especialidad: especialidad || undefined,
+      medico_id: medicoId === '' ? undefined : medicoId,
+      fecha: fecha || undefined,
+      hora: hora || undefined,
+      motivo: motivo.trim() || undefined,
+      origen: 'react',
+    });
+  }
+
+  function resetForm() {
+    setStep('paciente');
+    setDni('');
+    setDireccion('');
+    setNombre('');
+    setApellido('');
+    setSexo('');
+    setEstadoCivil('');
+    setFechaNacimiento('');
+    setLugarNacimiento('');
+    setAutorizaDatos(false);
+    setShowPacienteErrors(false);
+    setTelefono('');
+    setEmail('');
+    setEspecialidad('');
+    setMedicoId('');
+    setFecha('');
+    setHora('');
+    setMotivo('');
+  }
+
+  async function handleCitaPay(request: CitaPagoRequest) {
     setBusy(true);
     setMsg(null);
     setErr(null);
     setHint(null);
+
+    const payload = {
+      servicio_id: request.servicioId,
+      solicitud_cita_id: undefined as number | undefined,
+      cliente_nombre: nombreCompleto.trim(),
+      cliente_email: email.trim(),
+      cliente_telefono: telefono.trim() || undefined,
+    };
+
     try {
-      await submitSolicitudCita({
-        nombre: nombreCompleto,
-        paciente_dni: digits,
-        paciente_direccion: direccion.trim(),
-        telefono: telefono.trim(),
-        email: email.trim() || undefined,
-        paciente_detalle: pacienteDetalle,
-        especialidad: especialidad || undefined,
-        medico_id: medicoId === '' ? undefined : medicoId,
-        fecha: fecha || undefined,
-        hora: hora || undefined,
-        motivo: motivo.trim() || undefined,
-        origen: 'react',
+      const solicitudId = await submitSolicitud();
+      if (!solicitudId) {
+        setErr('No se pudo registrar la solicitud de cita.');
+        return;
+      }
+      payload.solicitud_cita_id = solicitudId;
+
+      if (request.metodo === 'tarjeta') {
+        const res = await createCheckoutSession(payload);
+        if (res.checkout_url) {
+          window.location.href = res.checkout_url;
+          return;
+        }
+        setErr('No se recibió la URL de pago de Stripe.');
+        return;
+      }
+
+      const res = await registrarPagoManual({
+        ...payload,
+        metodo: request.metodo,
+        referencia_manual: request.referencia,
       });
-      setMsg('Solicitud registrada. Nos pondremos en contacto para confirmar disponibilidad.');
-      setStep('paciente');
-      setDni('');
-      setDireccion('');
-      setNombre('');
-      setApellido('');
-      setSexo('');
-      setEstadoCivil('');
-      setFechaNacimiento('');
-      setLugarNacimiento('');
-      setAutorizaDatos(false);
-      setShowPacienteErrors(false);
-      setTelefono('');
-      setEmail('');
-      setEspecialidad('');
-      setMedicoId('');
-      setFecha('');
-      setHora('');
-      setMotivo('');
+      resetForm();
+      navigate(`/?cita_ok=1&solicitud_id=${solicitudId}&pago_id=${res.pago_id}`);
     } catch (e) {
-      setErr(e instanceof Error ? e.message : 'Error al enviar');
+      setErr(e instanceof Error ? e.message : 'Error al registrar la cita o el pago.');
     } finally {
       setBusy(false);
     }
@@ -449,9 +494,11 @@ export default function SolicitudPage() {
 
   const nextLabel =
     step === 'especialidad'
-        ? 'Siguiente: Elegir horario'
-        : step === 'horario'
-          ? 'Siguiente: Confirmar'
+      ? 'Siguiente: Elegir horario'
+      : step === 'horario'
+        ? 'Siguiente: Confirmar'
+        : step === 'confirmar'
+          ? 'Siguiente: Pago'
           : null;
 
   const pacienteValid = validatePaciente() === null;
@@ -466,14 +513,14 @@ export default function SolicitudPage() {
         <div
           className={[
             'container mx-auto px-4',
-            step === 'paciente' ? 'max-w-5xl' : 'max-w-2xl',
+            step === 'paciente' ? 'max-w-5xl' : step === 'pago' ? 'max-w-3xl' : 'max-w-2xl',
           ].join(' ')}
         >
           <AgendarCitaStepper current={step} />
 
           <form
             className={['cita-form-card', step === 'paciente' ? 'cita-form-card--paciente' : ''].filter(Boolean).join(' ')}
-            onSubmit={step === 'confirmar' ? onSubmit : (e) => e.preventDefault()}
+            onSubmit={(e) => e.preventDefault()}
           >
             <div className="cita-form-card__head">
               <span className="cita-form-card__head-icon">
@@ -633,6 +680,18 @@ export default function SolicitudPage() {
               </div>
             ) : null}
 
+            {step === 'pago' ? (
+              <CitaPagoStep
+                nombreCompleto={nombreCompleto}
+                email={email}
+                telefono={telefono}
+                medicoId={medicoId}
+                busy={busy}
+                onError={setErr}
+                onPay={handleCitaPay}
+              />
+            ) : null}
+
             {msg ? <p className="alert alert--ok mt-4">{msg}</p> : null}
             {hint ? <p className="alert alert--info mt-4">{hint}</p> : null}
             {err ? <p className="alert alert--err mt-4">{err}</p> : null}
@@ -655,7 +714,7 @@ export default function SolicitudPage() {
                   Guardar Datos del Paciente
                 </button>
               ) : null}
-              {step !== 'confirmar' && step !== 'paciente' ? (
+              {step !== 'confirmar' && step !== 'paciente' && step !== 'pago' ? (
                 <button
                   type="button"
                   className={[
@@ -670,17 +729,13 @@ export default function SolicitudPage() {
                 </button>
               ) : step === 'confirmar' ? (
                 <button
+                  type="button"
                   className="cita-btn-next cita-btn-next--enabled"
-                  type="submit"
+                  onClick={goNext}
                   disabled={busy}
                 >
-                  {busy ? (
-                    <>
-                      <Loader2 className="animate-spin" size={18} /> Enviando…
-                    </>
-                  ) : (
-                    'Enviar solicitud'
-                  )}
+                  {nextLabel}
+                  <ChevronRight size={18} />
                 </button>
               ) : null}
             </div>

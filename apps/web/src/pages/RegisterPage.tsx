@@ -1,9 +1,12 @@
 import { FormEvent, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Mail } from 'lucide-react';
-import { isRegisterPending, register, resendVerification } from '../lib/authApi';
+import { Link, useNavigate } from 'react-router-dom';
+import { CheckCircle2, Mail } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
+import { followAuthRedirect, isRegisterPending, register, resendVerification } from '../lib/authApi';
 
 export default function RegisterPage() {
+  const navigate = useNavigate();
+  const { refresh, user } = useAuth();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -12,6 +15,7 @@ export default function RegisterPage() {
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   const [pendingEmail, setPendingEmail] = useState('');
+  const [redirectUrl, setRedirectUrl] = useState('/');
   const [resendBusy, setResendBusy] = useState(false);
   const [resendMessage, setResendMessage] = useState('');
 
@@ -31,7 +35,9 @@ export default function RegisterPage() {
       });
 
       if (isRegisterPending(result)) {
+        await refresh();
         setPendingEmail(result.email ?? email);
+        setRedirectUrl(result.redirect_url ?? '/');
         return;
       }
     } catch (err) {
@@ -55,34 +61,58 @@ export default function RegisterPage() {
     }
   }
 
+  function goToPlatform() {
+    if (user?.role === 'admin' && redirectUrl.includes('/admin')) {
+      followAuthRedirect(redirectUrl);
+      return;
+    }
+    navigate('/');
+  }
+
   if (pendingEmail) {
     return (
       <main id="contenido" className="mx-auto max-w-md px-6 py-16">
         <div className="rounded-2xl border border-border bg-white p-8 text-center shadow-sm">
-          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-accent/10 text-accent">
-            <Mail size={28} />
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
+            <CheckCircle2 size={28} />
           </div>
-          <h1 className="font-display text-2xl font-bold text-primary">Revisa tu correo</h1>
+          <h1 className="font-display text-2xl font-bold text-primary">¡Cuenta creada!</h1>
           <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-            Enviamos una notificación a <strong className="text-foreground">{pendingEmail}</strong>.
-            Abre el correo y haz clic en <strong>Ingresar a mi cuenta</strong> para entrar.
+            Enviamos un correo de confirmación a{' '}
+            <strong className="text-foreground">{pendingEmail}</strong>. Revisa tu bandeja y haz clic en el
+            enlace cuando puedas.
+          </p>
+          <p className="mt-3 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-900">
+            <strong>Ya puedes volver a la plataforma.</strong> Tu sesión quedó iniciada
+            {user?.name ? (
+              <>
+                {' '}
+                como <strong>{user.name}</strong>
+              </>
+            ) : null}
+            .
           </p>
           {resendMessage && (
-            <p className="mt-4 rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-800">{resendMessage}</p>
+            <p className="mt-4 rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-800">
+              {resendMessage}
+            </p>
           )}
+          <button
+            type="button"
+            onClick={goToPlatform}
+            className="mt-6 w-full rounded-lg bg-accent py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+          >
+            {user?.role === 'admin' ? 'Ir al panel de gestión' : 'Ir al inicio'}
+          </button>
           <button
             type="button"
             onClick={() => void onResend()}
             disabled={resendBusy}
-            className="mt-6 w-full rounded-lg border border-border py-2.5 text-sm font-semibold text-primary hover:bg-secondary disabled:opacity-60"
+            className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg border border-border py-2.5 text-sm font-semibold text-primary hover:bg-secondary disabled:opacity-60"
           >
-            {resendBusy ? 'Reenviando…' : 'Reenviar notificación'}
+            <Mail size={16} aria-hidden="true" />
+            {resendBusy ? 'Reenviando…' : 'Reenviar correo de confirmación'}
           </button>
-          <p className="mt-6 text-sm text-muted-foreground">
-            <Link to="/login" className="font-semibold text-primary hover:underline">
-              Ir a iniciar sesión
-            </Link>
-          </p>
         </div>
       </main>
     );
@@ -93,7 +123,7 @@ export default function RegisterPage() {
       <div className="rounded-2xl border border-border bg-white p-8 shadow-sm">
         <h1 className="font-display text-2xl font-bold text-primary">Registrarse</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Pon tu correo (@gmail.com, @continental.edu.pe, etc.). Te llegará una notificación para ingresar.
+          Te enviaremos un correo de confirmación y podrás usar la plataforma de inmediato.
         </p>
 
         {error && (
@@ -185,7 +215,7 @@ export default function RegisterPage() {
             disabled={busy}
             className="w-full rounded-lg bg-accent py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-60"
           >
-            {busy ? 'Enviando notificación…' : 'Registrarse'}
+            {busy ? 'Creando cuenta…' : 'Registrarse'}
           </button>
         </form>
 

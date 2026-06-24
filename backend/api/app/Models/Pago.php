@@ -52,6 +52,11 @@ class Pago extends Model
         return $this->belongsTo(Servicio::class);
     }
 
+    public function solicitudCita(): BelongsTo
+    {
+        return $this->belongsTo(SolicitudCita::class, 'solicitud_cita_id');
+    }
+
     public function marcarPagado(?string $notas = null): void
     {
         $this->estado = self::ESTADO_PAID;
@@ -60,5 +65,42 @@ class Pago extends Model
             $this->notas = $notas;
         }
         $this->save();
+        $this->sincronizarSolicitudCitaPagada();
+    }
+
+    public function sincronizarEstadoSolicitudCita(): void
+    {
+        if ($this->solicitud_cita_id === null) {
+            return;
+        }
+
+        $solicitud = SolicitudCita::query()->find($this->solicitud_cita_id);
+        if ($solicitud === null || $solicitud->estado === 'cancelada') {
+            return;
+        }
+
+        if ($this->estado === self::ESTADO_PAID) {
+            $solicitud->estado = 'pagada';
+            $solicitud->save();
+
+            return;
+        }
+
+        if ($this->estado === self::ESTADO_PENDING_MANUAL) {
+            $solicitud->estado = 'pago_pendiente';
+            $solicitud->save();
+        }
+    }
+
+    private function sincronizarSolicitudCitaPagada(): void
+    {
+        if ($this->solicitud_cita_id === null) {
+            return;
+        }
+
+        SolicitudCita::query()
+            ->where('id', $this->solicitud_cita_id)
+            ->where('estado', '!=', 'cancelada')
+            ->update(['estado' => 'pagada']);
     }
 }

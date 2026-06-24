@@ -360,6 +360,9 @@
       .badge--reprogramada { background: #ffedd5; color: #c2410c; }
       .badge--cancelada { background: #fee2e2; color: #b91c1c; }
       .badge--activo { background: #d1fae5; color: #047857; }
+      .badge--success { background: #d1fae5; color: #047857; }
+      .badge--warning { background: #ffedd5; color: #c2410c; }
+      .badge--muted { background: #f1f5f9; color: #64748b; }
 
       .stats-row {
         display: grid;
@@ -575,6 +578,7 @@
         ['route' => 'admin.medicos.index', 'label' => 'Médicos', 'match' => 'admin.medicos.*', 'icon' => 'users'],
         ['route' => 'admin.servicios.index', 'label' => 'Servicios', 'match' => 'admin.servicios.*', 'icon' => 'box'],
         ['route' => 'admin.solicitudes-citas.index', 'label' => 'Solicitudes de citas', 'match' => 'admin.solicitudes-citas.*', 'icon' => 'calendar'],
+        ['route' => 'admin.ambulancias.index', 'label' => 'Ambulancias', 'match' => 'admin.ambulancias.*', 'icon' => 'truck'],
         ['route' => 'admin.pagos.index', 'label' => 'Pagos / Órdenes', 'match' => 'admin.pagos.*', 'icon' => 'card'],
       ];
     @endphp
@@ -600,7 +604,7 @@
           @endforeach
         </nav>
         <div class="admin-sidebar__foot">
-          <a href="{{ route('web.public') }}" target="_blank" rel="noopener">
+          <a href="{{ route('auth.spa-handoff') }}" target="_blank" rel="noopener">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
             Ver sitio web
           </a>
@@ -631,7 +635,7 @@
                   @hasSection('page_actions')
                     @yield('page_actions')
                   @endif
-                  <a class="btn-sitio-web" href="{{ route('web.public') }}" target="_blank" rel="noopener">
+                  <a class="btn-sitio-web" href="{{ route('auth.spa-handoff') }}" target="_blank" rel="noopener">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
                     Ver sitio web
                   </a>

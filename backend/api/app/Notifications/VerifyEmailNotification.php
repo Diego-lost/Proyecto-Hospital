@@ -18,8 +18,9 @@ class VerifyEmailNotification extends VerifyEmail
         return (new MailMessage)
             ->subject('Ingresa a tu cuenta — Clínica NovaSalud')
             ->greeting('Hola '.$notifiable->name)
-            ->line('Te registraste en Clínica NovaSalud. Haz clic en el botón para ingresar a tu cuenta.')
-            ->action('Ingresar a mi cuenta', $url)
+            ->line('Te registraste en Clínica NovaSalud. Haz clic en el botón para confirmar tu correo.')
+            ->line('Mientras tanto, ya puedes volver a la plataforma con tu sesión iniciada.')
+            ->action('Confirmar mi correo', $url)
             ->line('Este enlace caduca en '.$expire.' minutos.')
             ->line('Si no creaste esta cuenta, ignora este mensaje.');
     }

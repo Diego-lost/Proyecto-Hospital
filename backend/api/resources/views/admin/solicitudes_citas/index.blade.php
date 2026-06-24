@@ -17,6 +17,7 @@
           <th>Médico</th>
           <th>Especialidad</th>
           <th>Fecha/Hora</th>
+          <th>Pago</th>
           <th>Estado</th>
           <th style="width: 320px;">Acciones</th>
         </tr>
@@ -47,6 +48,15 @@
               {{ $s->fecha ?? '—' }}
               {{ $s->hora ?? '' }}
             </td>
+            <td class="muted">
+              @if ($s->pago)
+                <div><strong>#{{ $s->pago->id }}</strong> — {{ $s->pago->estado }}</div>
+                <div>{{ strtoupper($s->pago->moneda ?? 'pen') }} {{ number_format((float) $s->pago->monto, 2) }}</div>
+                <div class="muted">{{ $s->pago->metodo ?? '—' }}</div>
+              @else
+                —
+              @endif
+            </td>
             <td><span class="badge">{{ $s->estado }}</span></td>
             <td>
               <div class="grid" style="gap: 10px;">
@@ -72,7 +82,7 @@
             </td>
           </tr>
         @empty
-          <tr><td colspan="10" class="muted">Sin registros.</td></tr>
+          <tr><td colspan="11" class="muted">Sin registros.</td></tr>
         @endforelse
       </tbody>
     </table>

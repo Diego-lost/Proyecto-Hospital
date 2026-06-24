@@ -5,16 +5,21 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\EmailNotification;
 use App\Models\User;
+use App\Support\AuthRedirect;
+use App\Support\CrossOriginSpa;
+use App\Support\FrontendPublicUrl;
 use App\Support\MailDelivery;
+use App\Support\SpaAuthToken;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
 class RegisterController extends Controller
 {
-    private const PENDING_MESSAGE = 'Revisa tu correo. Te enviamos una notificación con un enlace para ingresar a tu cuenta.';
+    private const SUCCESS_MESSAGE = 'Te enviamos un correo de confirmación. Ya puedes volver a la plataforma: tu sesión quedó iniciada.';
 
     public function create(): View
     {
@@ -78,13 +83,33 @@ class RegisterController extends Controller
         }
 
         if ($request->wantsJson()) {
-            return response()->json([
-                'message' => self::PENDING_MESSAGE,
+            $payload = [
+                'message' => self::SUCCESS_MESSAGE,
                 'pending_verification' => true,
                 'email' => $user->email,
-            ], 201);
+                'user' => AuthRedirect::userPayload($user),
+                'redirect_url' => AuthRedirect::forUser($user),
+            ];
+
+            $spaToken = null;
+            if (CrossOriginSpa::usesStatelessAuth($request)) {
+                $spaToken = SpaAuthToken::issue($user);
+                $payload['token'] = $spaToken;
+            }
+
+            $payload['redirect_url'] = AuthRedirect::forUser($user, $spaToken);
+
+            if ($spaToken === null) {
+                Auth::login($user);
+                $request->session()->regenerate();
+            }
+
+            return response()->json($payload, 201);
         }
 
-        return redirect()->route('login')->with('status', self::PENDING_MESSAGE);
+        Auth::login($user);
+        $request->session()->regenerate();
+
+        return redirect(FrontendPublicUrl::resolve())->with('status', self::SUCCESS_MESSAGE);
     }
 }

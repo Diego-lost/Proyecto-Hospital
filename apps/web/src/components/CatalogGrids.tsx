@@ -2,8 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useRefetchWhenTabVisible } from '../hooks/useRefetchWhenTabVisible';
 import { useSupabaseTablesReload } from '../hooks/useSupabaseTablesReload';
-import { adminPanelUrl } from '../lib/adminUrl';
-import { excerpt, formatMoney, initials, isHttpUrl } from '../lib/catalogUtils';
+import { especialidadCardImage, excerpt, formatMoney, initials, isHttpUrl } from '../lib/catalogUtils';
 import { fetchEspecialidades, fetchMedicos, fetchServicios } from '../lib/remoteCatalog';
 import type { EspecialidadRow, MedicoRow, ServicioRow } from '../types/catalogRows';
 
@@ -43,7 +42,7 @@ export function LiveStats() {
   useSupabaseTablesReload(SB_RT_ALL, () => void load({ silent: true }));
 
   return (
-    <dl className="hero__stats" aria-label="Indicadores (datos en vivo desde el sistema)">
+    <dl className="hero__stats" aria-label="Indicadores de especialidades, médicos y servicios">
       <div className="stat">
         <dt className="stat__kpi">{esp}</dt>
         <dd className="stat__label">Especialidades</dd>
@@ -108,10 +107,10 @@ export function CatalogEspecialidades() {
     return (
       <div className="catalog-empty card card--soft">
         <p className="muted" style={{ margin: 0 }}>
-          No hay especialidades en la base de datos. Créalas en el{' '}
-          <a className="card__link" href={adminPanelUrl()}>
-            panel de administración
-          </a>
+          Aún no hay especialidades publicadas. Vuelve a consultar pronto o{' '}
+          <Link className="card__link" to="/contacto">
+            escríbenos
+          </Link>
           .
         </p>
       </div>
@@ -134,27 +133,18 @@ export function CatalogEspecialidades() {
 
   return (
     <div className="grid grid--3">
-      {list.map((e) => {
-        const img = isHttpUrl(e.imagen) ? (
+      {list.map((e) => (
+        <article key={e.id} className="card card--catalog">
           <div className="catalog-card__media">
-            <img src={e.imagen!} alt="" loading="lazy" />
+            <img src={especialidadCardImage(e)} alt={e.nombre} loading="lazy" />
           </div>
-        ) : (
-          <div className="catalog-card__media catalog-card__media--placeholder" aria-hidden="true">
-            🏥
-          </div>
-        );
-        return (
-          <article key={e.id} className="card card--catalog">
-            {img}
-            <h3 className="card__title">{e.nombre}</h3>
-            <p className="card__text">Consultas y procedimientos bajo esta especialidad.</p>
-            <Link className="card__link" to="/cita">
-              Consultar
-            </Link>
-          </article>
-        );
-      })}
+          <h3 className="card__title">{e.nombre}</h3>
+          <p className="card__text">Consultas y procedimientos bajo esta especialidad.</p>
+          <Link className="card__link" to="/cita">
+            Consultar
+          </Link>
+        </article>
+      ))}
     </div>
   );
 }
@@ -207,11 +197,7 @@ export function CatalogMedicos() {
     return (
       <div className="catalog-empty card card--soft">
         <p className="muted" style={{ margin: 0 }}>
-          No hay médicos registrados. Añádelos en el{' '}
-          <a className="card__link" href={adminPanelUrl()}>
-            panel de administración
-          </a>
-          .
+          Aún no hay médicos en el listado. Contáctanos y te orientamos sobre disponibilidad.
         </p>
       </div>
     );
@@ -304,11 +290,7 @@ export function CatalogServicios() {
     return (
       <div className="catalog-empty card card--soft">
         <p className="muted" style={{ margin: 0 }}>
-          No hay servicios publicados. Créalos en el{' '}
-          <a className="card__link" href={adminPanelUrl()}>
-            panel de administración
-          </a>
-          .
+          Aún no hay servicios publicados. Consulta tarifas en recepción o al agendar tu cita.
         </p>
       </div>
     );

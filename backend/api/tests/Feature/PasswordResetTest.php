@@ -94,4 +94,29 @@ class PasswordResetTest extends TestCase
 
         $this->assertGuest();
     }
+
+    public function test_api_reset_password_devuelve_token_sin_sesion(): void
+    {
+        $user = User::factory()->user()->verified()->create([
+            'email' => 'spa-reset@local.test',
+            'password' => 'old-password',
+        ]);
+
+        $token = Password::broker()->createToken($user);
+
+        $response = $this->postJson(route('api.auth.reset-password'), [
+            'token' => $token,
+            'email' => $user->email,
+            'password' => 'new-password-99',
+            'password_confirmation' => 'new-password-99',
+        ]);
+
+        $response->assertOk()
+            ->assertJsonFragment(['message' => 'Contraseña actualizada correctamente.'])
+            ->assertJsonStructure(['user', 'redirect_url', 'token']);
+
+        $user->refresh();
+        $this->assertTrue(Hash::check('new-password-99', $user->password));
+        $this->assertGuest();
+    }
 }
